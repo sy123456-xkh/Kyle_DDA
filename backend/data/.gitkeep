@@ -1,0 +1,7 @@
+# backend/data/
+此目录存放运行时数据：
+- 上传的 CSV 文件
+- DuckDB 数据库 (app.duckdb)
+- Manifest JSON 文件
+
+这些文件由 .gitignore 排除，运行时自动创建。
