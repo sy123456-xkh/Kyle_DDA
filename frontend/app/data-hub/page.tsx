@@ -1,34 +1,24 @@
 'use client'
 
-import { useState } from 'react'
 import Navigation from '../components/Navigation'
 import UploadZone from '../components/UploadZone'
 import DataProfile from '../components/DataProfile'
+import { DataProvider, useData } from '../contexts/DataContext'
+import { api } from '@/lib/api'
 
-export default function DataHubPage() {
-  const [datasetId, setDatasetId] = useState<string | null>(null)
-  const [profileData, setProfileData] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
+function DataHubContent() {
+  const { profile, isLoading, error, setDataset, setLoading, setError } = useData()
 
   const handleUpload = async (file: File) => {
     setLoading(true)
-    const formData = new FormData()
-    formData.append('file', file)
+    setError(null)
 
     try {
-      const res = await fetch('http://localhost:8000/datasets/upload', {
-        method: 'POST',
-        body: formData,
-      })
-      const data = await res.json()
-      setDatasetId(data.dataset_id)
-
-      // 获取 profile
-      const profileRes = await fetch(`http://localhost:8000/datasets/${data.dataset_id}/profile`)
-      const profile = await profileRes.json()
-      setProfileData(profile)
-    } catch (error) {
-      console.error('Upload failed:', error)
+      const { dataset_id } = await api.uploadDataset(file)
+      const profileData = await api.getProfile(dataset_id)
+      setDataset(dataset_id, profileData)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
       setLoading(false)
     }
@@ -43,7 +33,13 @@ export default function DataHubPage() {
           <p className="text-gray-600">Central intelligence for your raw datasets.</p>
         </div>
 
-        {loading ? (
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            {error}
+          </div>
+        )}
+
+        {isLoading ? (
           <div className="text-center py-20">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
             <p className="mt-4 text-gray-600">Processing...</p>
@@ -51,10 +47,18 @@ export default function DataHubPage() {
         ) : (
           <>
             <UploadZone onUpload={handleUpload} />
-            <DataProfile data={profileData} />
+            <DataProfile data={profile} />
           </>
         )}
       </main>
     </div>
+  )
+}
+
+export default function DataHubPage() {
+  return (
+    <DataProvider>
+      <DataHubContent />
+    </DataProvider>
   )
 }
