@@ -1,0 +1,11 @@
+{
+  "workflow": {
+    "research_enabled": false,
+    "ui_spec_enabled": false,
+    "auto_commit": true,
+    "verification_mode": "conversational"
+  },
+  "model_profile": "inherit",
+  "project_type": "refactor",
+  "language": "zh-CN"
+}
