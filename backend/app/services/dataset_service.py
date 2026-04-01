@@ -1,5 +1,7 @@
 """数据集业务逻辑：上传 CSV、建表、Profiling、Manifest（文件持久化）"""
 
+import csv
+import io
 import json
 import os
 import re
@@ -8,7 +10,7 @@ from typing import Optional
 
 from app.config import settings
 from app.db import get_conn
-from app.exceptions import DatasetNotFoundError
+from app.exceptions import DatasetNotFoundError, FileValidationError
 from app.schemas import (
     ColumnInfo,
     ManifestResponse,
@@ -35,6 +37,27 @@ _NUMERIC_TYPES = {
 def _safe_id() -> str:
     """生成一个可直接用作 DuckDB 表名的短 ID（仅字母数字下划线）"""
     return "ds_" + re.sub(r"[^a-z0-9]", "", uuid.uuid4().hex[:8])
+
+
+def _validate_csv_content(content: bytes) -> None:
+    """验证 CSV 内容是否有效"""
+    try:
+        # 尝试解析 CSV
+        text = content.decode('utf-8')
+        reader = csv.reader(io.StringIO(text))
+        header = next(reader, None)
+        if not header:
+            raise FileValidationError("CSV 文件为空")
+    except UnicodeDecodeError:
+        raise FileValidationError("CSV 文件编码无效，仅支持 UTF-8")
+    except csv.Error as e:
+        raise FileValidationError(f"CSV 格式无效: {e}")
+
+
+def _validate_dataset_id(dataset_id: str) -> None:
+    """验证 dataset_id 格式"""
+    if not re.match(r'^ds_[a-z0-9]{8}$', dataset_id):
+        raise DatasetNotFoundError(f"无效的 dataset_id: {dataset_id}")
 
 
 # ── Manifest 文件读写 ──────────────────────────────────
@@ -97,6 +120,9 @@ def _guess_metric_candidates(columns: list[ColumnInfo]) -> list[str]:
 
 # ── Upload ──────────────────────────────────────────────
 def upload_csv(filename: str, content: bytes) -> UploadResponse:
+    # 验证 CSV 内容
+    _validate_csv_content(content)
+
     dataset_id = _safe_id()
     csv_path = os.path.join(DATA_DIR, f"{dataset_id}.csv")
 
@@ -141,6 +167,7 @@ def upload_csv(filename: str, content: bytes) -> UploadResponse:
 
 # ── Profile ─────────────────────────────────────────────
 def profile_dataset(dataset_id: str) -> ProfileResponse:
+    _validate_dataset_id(dataset_id)
     view_name = f"v_dataset_{dataset_id}"
     conn = get_conn()
 
@@ -193,6 +220,7 @@ def profile_dataset(dataset_id: str) -> ProfileResponse:
 
 # ── Manifest ────────────────────────────────────────────
 def get_manifest(dataset_id: str) -> ManifestResponse:
+    _validate_dataset_id(dataset_id)
     m = _load_manifest(dataset_id)
     if m is None:
         raise DatasetNotFoundError(f"数据集 {dataset_id} 不存在")
@@ -200,6 +228,7 @@ def get_manifest(dataset_id: str) -> ManifestResponse:
 
 
 def update_manifest(dataset_id: str, update: ManifestUpdate) -> ManifestResponse:
+    _validate_dataset_id(dataset_id)
     m = _load_manifest(dataset_id)
     if m is None:
         raise DatasetNotFoundError(f"数据集 {dataset_id} 不存在")

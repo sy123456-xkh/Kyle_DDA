@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from app.exceptions import DatasetNotFoundError, FileValidationError, SQLGuardrailError
+from app.config import settings
 
 from app.schemas import (
     ErrorResponse,
@@ -65,6 +66,11 @@ async def api_upload_dataset(file: UploadFile = File(...)) -> UploadResponse:
         raise FileValidationError("仅支持 CSV 文件")
 
     content = await file.read()
+
+    # 检查文件大小
+    if len(content) > settings.MAX_FILE_SIZE_BYTES:
+        raise FileValidationError(f"文件大小超过限制 ({settings.MAX_FILE_SIZE_MB}MB)")
+
     return upload_csv(file.filename, content)
 
 

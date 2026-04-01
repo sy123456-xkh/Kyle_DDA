@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     DATA_DIR: str = os.path.join(os.path.dirname(__file__), "..", "data")
     DB_PATH: str = os.path.join(os.path.dirname(__file__), "..", "data", "app.duckdb")
     MAX_FILE_SIZE_MB: int = 100
+    MAX_FILE_SIZE_BYTES: int = 100 * 1024 * 1024  # 100MB
 
     class Config:
         env_file = ".env"

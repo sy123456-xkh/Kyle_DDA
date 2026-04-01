@@ -9,13 +9,13 @@ from typing import Optional
 from app.db import get_conn
 from app.exceptions import SQLGuardrailError
 from app.schemas import ChartSpec, PlaybookRequest, QueryMeta, QueryResponse
-from app.services.dataset_service import get_manifest
+from app.services.dataset_service import get_manifest, _validate_dataset_id
 
 logger = logging.getLogger("chat-to-bi")
 
 # SQL 护栏：禁止的关键词（大写匹配）
 _FORBIDDEN_KEYWORDS = re.compile(
-    r"\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|REPLACE|MERGE|GRANT|REVOKE)\b",
+    r"\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|REPLACE|MERGE|GRANT|REVOKE|EXEC|EXECUTE)\b",
     re.IGNORECASE,
 )
 
@@ -28,6 +28,9 @@ _COUNT_KEYWORDS = re.compile(r"行数|count|多少行|总数|总共|有几", re.
 # 聚合函数白名单
 _VALID_AGGS = {"sum", "avg", "count"}
 
+# 最大查询长度
+_MAX_QUERY_LENGTH = 5000
+
 
 def _trace_id() -> str:
     return "trc_" + uuid.uuid4().hex[:8]
@@ -35,6 +38,10 @@ def _trace_id() -> str:
 
 def _guard_sql(sql: str, max_limit: int = 5000) -> str:
     """SQL 护栏：拒绝非 SELECT 语句，自动补 LIMIT"""
+    # 检查查询长度
+    if len(sql) > _MAX_QUERY_LENGTH:
+        raise SQLGuardrailError(f"SQL 护栏拦截：查询长度超过 {_MAX_QUERY_LENGTH} 字符")
+
     if _FORBIDDEN_KEYWORDS.search(sql):
         raise SQLGuardrailError("SQL 护栏拦截：仅允许 SELECT 查询")
 
@@ -107,6 +114,7 @@ def _build_sql(dataset_id: str, question: str) -> str:
 
 # ── Chat Query ──────────────────────────────────────────
 def execute_query(dataset_id: str, question: str) -> QueryResponse:
+    _validate_dataset_id(dataset_id)
     sql = _build_sql(dataset_id, question)
     chart = ChartSpec(type="table", title="查询结果")
     return _execute_sql(sql, _trace_id(), chart=chart)
@@ -114,6 +122,7 @@ def execute_query(dataset_id: str, question: str) -> QueryResponse:
 
 # ── Playbook ────────────────────────────────────────────
 def execute_playbook(req: PlaybookRequest) -> QueryResponse:
+    _validate_dataset_id(req.dataset_id)
     view = f"v_dataset_{req.dataset_id}"
     tc = req.time_col
     mc = req.metric_col
@@ -171,6 +180,7 @@ def execute_playbook(req: PlaybookRequest) -> QueryResponse:
 # ── 下载 CSV ────────────────────────────────────────────
 def execute_download(sql: str, dataset_id: str) -> tuple[list[str], list[tuple]]:
     """执行 SQL 返回 (columns, raw_rows) 用于 CSV 下载"""
+    _validate_dataset_id(dataset_id)
     sql = _guard_download_sql(sql, dataset_id)
     conn = get_conn()
     try:
