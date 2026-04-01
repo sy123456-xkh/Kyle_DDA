@@ -117,7 +117,31 @@ def execute_query(dataset_id: str, question: str) -> QueryResponse:
     _validate_dataset_id(dataset_id)
     sql = _build_sql(dataset_id, question)
     chart = ChartSpec(type="table", title="查询结果")
-    return _execute_sql(sql, _trace_id(), chart=chart)
+
+    result = _execute_sql(sql, _trace_id(), chart=chart)
+
+    # 记录查询历史
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO query_history (dataset_id, question, sql, elapsed_ms) VALUES (?, ?, ?, ?)",
+        [dataset_id, question, result.sql, result.meta.elapsed_ms]
+    )
+
+    return result
+
+
+def get_query_history(dataset_id: str, limit: int = 10) -> list[dict]:
+    """获取查询历史"""
+    _validate_dataset_id(dataset_id)
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT question, sql, created_at, elapsed_ms FROM query_history WHERE dataset_id = ? ORDER BY created_at DESC LIMIT ?",
+        [dataset_id, limit]
+    ).fetchall()
+    return [
+        {"question": r[0], "sql": r[1], "created_at": str(r[2]), "elapsed_ms": r[3]}
+        for r in rows
+    ]
 
 
 # ── Playbook ────────────────────────────────────────────

@@ -2,6 +2,7 @@
 
 import os
 import re
+import threading
 from typing import Any, Optional
 import duckdb
 
@@ -9,10 +10,52 @@ from app.config import settings
 
 DB_PATH = settings.DB_PATH
 
+# 线程本地存储连接
+_thread_local = threading.local()
+
 
 def get_conn() -> duckdb.DuckDBPyConnection:
-    """返回到 backend/data/app.duckdb 的连接（线程安全模式）"""
-    return duckdb.connect(DB_PATH, read_only=False)
+    """返回到 backend/data/app.duckdb 的连接（线程安全，连接复用）"""
+    if not hasattr(_thread_local, 'connection') or _thread_local.connection is None:
+        _thread_local.connection = duckdb.connect(DB_PATH, read_only=False)
+    return _thread_local.connection  # type: ignore[no-any-return]
+
+
+def close_all_connections() -> None:
+    """关闭所有连接"""
+    if hasattr(_thread_local, 'connection') and _thread_local.connection:
+        _thread_local.connection.close()
+        _thread_local.connection = None
+
+
+def init_metadata_tables() -> None:
+    """初始化元数据表"""
+    conn = get_conn()
+
+    # 创建 datasets 表
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS datasets (
+            id VARCHAR PRIMARY KEY,
+            filename VARCHAR,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            row_count INTEGER,
+            column_count INTEGER
+        )
+    """)
+
+    # 创建 query_history 表
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS query_history (
+            id INTEGER PRIMARY KEY,
+            dataset_id VARCHAR,
+            question VARCHAR,
+            sql VARCHAR,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            elapsed_ms DOUBLE
+        )
+    """)
+
+    conn.commit()
 
 
 def validate_identifier(identifier: str) -> bool:

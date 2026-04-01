@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from app.exceptions import DatasetNotFoundError, FileValidationError, SQLGuardrailError
 from app.config import settings
+from app.db import init_metadata_tables
 
 from app.schemas import (
     ErrorResponse,
@@ -32,6 +33,9 @@ from app.services.query_service import execute_download, execute_playbook, execu
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 app = FastAPI(title="Chat-to-BI MVP", version="0.2.0")
+
+# 初始化元数据表
+init_metadata_tables()
 
 # CORS — 开发阶段允许全部
 app.add_middleware(

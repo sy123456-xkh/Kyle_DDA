@@ -147,6 +147,16 @@ def upload_csv(filename: str, content: bytes) -> UploadResponse:
         ).fetchall()
         columns = [ColumnInfo(name=c[0], type=c[1]) for c in cols_raw]
 
+        # 获取行数
+        row_count_result = conn.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()
+        row_count = row_count_result[0] if row_count_result else 0
+
+        # 插入元数据到 datasets 表
+        conn.execute(
+            "INSERT INTO datasets (id, filename, row_count, column_count) VALUES (?, ?, ?, ?)",
+            [dataset_id, filename, row_count, len(columns)]
+        )
+
         # 自动推断并持久化 manifest
         manifest = ManifestResponse(
             dataset_id=dataset_id,
