@@ -4,8 +4,10 @@ import logging
 import re
 import time
 import uuid
+from typing import Optional
 
 from app.db import get_conn
+from app.exceptions import SQLGuardrailError
 from app.schemas import ChartSpec, PlaybookRequest, QueryMeta, QueryResponse
 from app.services.dataset_service import get_manifest
 
@@ -34,7 +36,7 @@ def _trace_id() -> str:
 def _guard_sql(sql: str, max_limit: int = 5000) -> str:
     """SQL 护栏：拒绝非 SELECT 语句，自动补 LIMIT"""
     if _FORBIDDEN_KEYWORDS.search(sql):
-        raise ValueError("SQL 护栏拦截：仅允许 SELECT 查询")
+        raise SQLGuardrailError("SQL 护栏拦截：仅允许 SELECT 查询")
 
     # 自动补 LIMIT
     if not _HAS_LIMIT.search(sql):
@@ -47,7 +49,7 @@ def _guard_download_sql(sql: str, dataset_id: str) -> str:
     """下载专用 SQL 护栏：额外检查分号、视图名、LIMIT 上限"""
     # 禁止分号
     if ";" in sql:
-        raise ValueError("SQL 护栏拦截：下载查询不允许包含分号")
+        raise SQLGuardrailError("SQL 护栏拦截：下载查询不允许包含分号")
 
     # 基础护栏（仅 SELECT，自动补 LIMIT 50000）
     sql = _guard_sql(sql, max_limit=50000)
@@ -55,25 +57,25 @@ def _guard_download_sql(sql: str, dataset_id: str) -> str:
     # 必须查询指定视图
     view_name = f"v_dataset_{dataset_id}"
     if view_name.lower() not in sql.lower():
-        raise ValueError(f"SQL 护栏拦截：下载查询必须包含 FROM {view_name}")
+        raise SQLGuardrailError(f"SQL 护栏拦截：下载查询必须包含 FROM {view_name}")
 
     # LIMIT <= 50000
     limit_match = re.search(r"\bLIMIT\s+(\d+)", sql, re.IGNORECASE)
     if limit_match and int(limit_match.group(1)) > 50000:
-        raise ValueError("SQL 护栏拦截：下载查询 LIMIT 不得超过 50000")
+        raise SQLGuardrailError("SQL 护栏拦截：下载查询 LIMIT 不得超过 50000")
 
     return sql
 
 
-def _execute_sql(sql: str, trace: str, chart: ChartSpec | None = None) -> QueryResponse:
+def _execute_sql(sql: str, trace: str, chart: Optional[ChartSpec] = None) -> QueryResponse:
     """执行 SQL 并返回统一 QueryResponse（复用逻辑）"""
     sql = _guard_sql(sql)
     conn = get_conn()
     try:
         t0 = time.perf_counter()
         result = conn.execute(sql)
-        columns = [desc[0] for desc in result.description]
-        raw_rows = result.fetchall()
+        columns = [desc[0] for desc in (result.description or [])]
+        raw_rows = result.fetchall() or []
         elapsed_ms = round((time.perf_counter() - t0) * 1000, 2)
 
         rows = [dict(zip(columns, row)) for row in raw_rows]
@@ -173,8 +175,8 @@ def execute_download(sql: str, dataset_id: str) -> tuple[list[str], list[tuple]]
     conn = get_conn()
     try:
         result = conn.execute(sql)
-        columns = [desc[0] for desc in result.description]
-        raw_rows = result.fetchall()
+        columns = [desc[0] for desc in (result.description or [])]
+        raw_rows = result.fetchall() or []
         return columns, raw_rows
     finally:
         conn.close()

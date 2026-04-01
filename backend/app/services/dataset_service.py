@@ -4,8 +4,11 @@ import json
 import os
 import re
 import uuid
+from typing import Optional
 
+from app.config import settings
 from app.db import get_conn
+from app.exceptions import DatasetNotFoundError
 from app.schemas import (
     ColumnInfo,
     ManifestResponse,
@@ -16,7 +19,7 @@ from app.schemas import (
     UploadResponse,
 )
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data")
+DATA_DIR = settings.DATA_DIR
 
 # 内存缓存（以文件为准，内存仅加速读取）
 _manifests_cache: dict[str, ManifestResponse] = {}
@@ -49,7 +52,7 @@ def _save_manifest(m: ManifestResponse) -> None:
     _manifests_cache[m.dataset_id] = m
 
 
-def _load_manifest(dataset_id: str) -> ManifestResponse | None:
+def _load_manifest(dataset_id: str) -> Optional[ManifestResponse]:
     """从文件加载 manifest（优先内存缓存）"""
     if dataset_id in _manifests_cache:
         return _manifests_cache[dataset_id]
@@ -65,14 +68,14 @@ def _load_manifest(dataset_id: str) -> ManifestResponse | None:
 
 # ── 自动推断 ───────────────────────────────────────────
 
-def _guess_time_col(columns: list[ColumnInfo]) -> str | None:
+def _guess_time_col(columns: list[ColumnInfo]) -> Optional[str]:
     for c in columns:
         if _TIME_COL_HINTS.search(c.name):
             return c.name
     return None
 
 
-def _guess_metric_col(columns: list[ColumnInfo]) -> str | None:
+def _guess_metric_col(columns: list[ColumnInfo]) -> Optional[str]:
     for c in columns:
         if c.type.upper() in _NUMERIC_TYPES:
             return c.name
@@ -143,7 +146,8 @@ def profile_dataset(dataset_id: str) -> ProfileResponse:
 
     try:
         # 1) 行数
-        row_count: int = conn.execute(f"SELECT COUNT(*) FROM {view_name}").fetchone()[0]
+        row_count_result = conn.execute(f"SELECT COUNT(*) FROM {view_name}").fetchone()
+        row_count: int = row_count_result[0] if row_count_result else 0
 
         # 2) 列信息（从 information_schema 获取）
         cols_raw = conn.execute(
@@ -157,9 +161,10 @@ def profile_dataset(dataset_id: str) -> ProfileResponse:
             f"SUM(CASE WHEN \"{c.name}\" IS NULL THEN 1 ELSE 0 END)::DOUBLE / COUNT(*)::DOUBLE AS \"{c.name}\""
             for c in columns
         )
-        missing_row = conn.execute(
+        missing_row_result = conn.execute(
             f"SELECT {missing_exprs} FROM {view_name}"
         ).fetchone()
+        missing_row = missing_row_result if missing_row_result else tuple([0.0] * len(columns))
         missing_rate = [
             MissingRate(name=columns[i].name, missing_rate=round(missing_row[i] or 0.0, 4))
             for i in range(len(columns))
@@ -190,14 +195,14 @@ def profile_dataset(dataset_id: str) -> ProfileResponse:
 def get_manifest(dataset_id: str) -> ManifestResponse:
     m = _load_manifest(dataset_id)
     if m is None:
-        raise ValueError(f"数据集 {dataset_id} 不存在")
+        raise DatasetNotFoundError(f"数据集 {dataset_id} 不存在")
     return m
 
 
 def update_manifest(dataset_id: str, update: ManifestUpdate) -> ManifestResponse:
     m = _load_manifest(dataset_id)
     if m is None:
-        raise ValueError(f"数据集 {dataset_id} 不存在")
+        raise DatasetNotFoundError(f"数据集 {dataset_id} 不存在")
     if update.primary_time_col is not None:
         m.primary_time_col = update.primary_time_col
     if update.metric_col is not None:

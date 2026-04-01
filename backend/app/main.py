@@ -4,9 +4,11 @@ import csv
 import io
 import logging
 
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
+
+from app.exceptions import DatasetNotFoundError, FileValidationError, SQLGuardrailError
 
 from app.schemas import (
     ErrorResponse,
@@ -40,17 +42,30 @@ app.add_middleware(
 )
 
 
+# ── 全局异常处理器 ────────────────────────────────
+@app.exception_handler(DatasetNotFoundError)
+async def dataset_not_found_handler(request: Request, exc: DatasetNotFoundError) -> JSONResponse:
+    return JSONResponse(status_code=404, content={"detail": exc.message})
+
+
+@app.exception_handler(SQLGuardrailError)
+async def sql_guardrail_handler(request: Request, exc: SQLGuardrailError) -> JSONResponse:
+    return JSONResponse(status_code=403, content={"detail": exc.message})
+
+
+@app.exception_handler(FileValidationError)
+async def file_validation_handler(request: Request, exc: FileValidationError) -> JSONResponse:
+    return JSONResponse(status_code=400, content={"detail": exc.message})
+
+
 # ── POST /datasets/upload ──────────────────────────────
 @app.post("/datasets/upload", response_model=UploadResponse)
-async def api_upload_dataset(file: UploadFile = File(...)):
+async def api_upload_dataset(file: UploadFile = File(...)) -> UploadResponse:
     if not file.filename or not file.filename.lower().endswith(".csv"):
-        raise HTTPException(status_code=400, detail="仅支持 CSV 文件")
+        raise FileValidationError("仅支持 CSV 文件")
 
-    try:
-        content = await file.read()
-        return upload_csv(file.filename, content)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"CSV 导入失败: {e}")
+    content = await file.read()
+    return upload_csv(file.filename, content)
 
 
 # ── GET /datasets/{dataset_id}/profile ─────────────────
@@ -59,75 +74,38 @@ async def api_upload_dataset(file: UploadFile = File(...)):
     response_model=ProfileResponse,
     responses={404: {"model": ErrorResponse}},
 )
-async def api_get_profile(dataset_id: str):
-    try:
-        return profile_dataset(dataset_id)
-    except Exception as e:
-        error_msg = str(e)
-        if "does not exist" in error_msg or "not found" in error_msg.lower():
-            raise HTTPException(status_code=404, detail=f"数据集 {dataset_id} 不存在")
-        raise HTTPException(status_code=500, detail=f"Profiling 失败: {error_msg}")
+async def api_get_profile(dataset_id: str) -> ProfileResponse:
+    return profile_dataset(dataset_id)
 
 
 # ── GET /datasets/{dataset_id}/manifest ────────────────
 @app.get("/datasets/{dataset_id}/manifest", response_model=ManifestResponse)
-async def api_get_manifest(dataset_id: str):
-    try:
-        return get_manifest(dataset_id)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+async def api_get_manifest(dataset_id: str) -> ManifestResponse:
+    return get_manifest(dataset_id)
 
 
 # ── PUT /datasets/{dataset_id}/manifest ────────────────
 @app.put("/datasets/{dataset_id}/manifest", response_model=ManifestResponse)
-async def api_update_manifest(dataset_id: str, body: ManifestUpdate):
-    try:
-        return update_manifest(dataset_id, body)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+async def api_update_manifest(dataset_id: str, body: ManifestUpdate) -> ManifestResponse:
+    return update_manifest(dataset_id, body)
 
 
 # ── POST /chat/query ───────────────────────────────────
 @app.post("/chat/query", response_model=QueryResponse)
-async def api_chat_query(req: QueryRequest):
-    try:
-        return execute_query(req.dataset_id, req.question)
-    except ValueError as e:
-        raise HTTPException(status_code=403, detail=str(e))
-    except Exception as e:
-        error_msg = str(e)
-        if "does not exist" in error_msg or "not found" in error_msg.lower():
-            raise HTTPException(
-                status_code=404, detail=f"数据集 {req.dataset_id} 不存在"
-            )
-        raise HTTPException(status_code=500, detail=f"查询失败: {error_msg}")
+async def api_chat_query(req: QueryRequest) -> QueryResponse:
+    return execute_query(req.dataset_id, req.question)
 
 
 # ── POST /playbook ─────────────────────────────────────
 @app.post("/playbook", response_model=QueryResponse)
-async def api_playbook(req: PlaybookRequest):
-    try:
-        return execute_playbook(req)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        error_msg = str(e)
-        if "does not exist" in error_msg or "not found" in error_msg.lower():
-            raise HTTPException(
-                status_code=404, detail=f"数据集 {req.dataset_id} 不存在"
-            )
-        raise HTTPException(status_code=500, detail=f"Playbook 执行失败: {error_msg}")
+async def api_playbook(req: PlaybookRequest) -> QueryResponse:
+    return execute_playbook(req)
 
 
 # ── GET /datasets/{dataset_id}/download ────────────────
 @app.get("/datasets/{dataset_id}/download")
-async def api_download_csv(dataset_id: str, sql: str = Query(...)):
-    try:
-        columns, raw_rows = execute_download(sql, dataset_id)
-    except ValueError as e:
-        raise HTTPException(status_code=403, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"下载失败: {e}")
+async def api_download_csv(dataset_id: str, sql: str = Query(...)) -> StreamingResponse:
+    columns, raw_rows = execute_download(sql, dataset_id)
 
     buf = io.StringIO()
     writer = csv.writer(buf)

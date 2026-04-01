@@ -1,5 +1,6 @@
 """Pydantic 请求/响应模型"""
 
+from typing import Optional, Union
 from pydantic import BaseModel
 
 
@@ -33,17 +34,17 @@ class ProfileResponse(BaseModel):
 
 # ── Manifest ────────────────────────────────────────────
 class ManifestUpdate(BaseModel):
-    primary_time_col: str | None = None
-    metric_col: str | None = None
-    metric_agg: str | None = None
-    time_grain: str | None = None
+    primary_time_col: Optional[str] = None
+    metric_col: Optional[str] = None
+    metric_agg: Optional[str] = None
+    time_grain: Optional[str] = None
 
 
 class ManifestResponse(BaseModel):
     dataset_id: str
-    view_name: str | None = None
-    primary_time_col: str | None = None
-    metric_col: str | None = None
+    view_name: Optional[str] = None
+    primary_time_col: Optional[str] = None
+    metric_col: Optional[str] = None
     metric_agg: str = "sum"
     time_grain: str = "day"
     dimension_candidates: list[str] = []
@@ -66,9 +67,9 @@ class QueryMeta(BaseModel):
 class ChartSpec(BaseModel):
     type: str  # "line" | "bar" | "table"
     title: str = ""
-    x: str | None = None
-    y: str | list[str] | None = None
-    series: str | None = None
+    x: Optional[str] = None
+    y: Optional[Union[str, list[str]]] = None
+    series: Optional[str] = None
     data: list[dict] = []
 
 
@@ -76,16 +77,16 @@ class QueryResponse(BaseModel):
     sql: str
     rows: list[dict]
     meta: QueryMeta
-    chart: ChartSpec | None = None
+    chart: Optional[ChartSpec] = None
 
 
 # ── Playbook ────────────────────────────────────────────
 class PlaybookRequest(BaseModel):
     dataset_id: str
     playbook: str  # "trend" | "topn" | "cross"
-    time_col: str | None = None
-    metric_col: str | None = None
-    dim_col: str | None = None
+    time_col: Optional[str] = None
+    metric_col: Optional[str] = None
+    dim_col: Optional[str] = None
 
 
 # ── 通用错误 ────────────────────────────────────────────
