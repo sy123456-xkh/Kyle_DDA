@@ -127,6 +127,12 @@ Plans:
 - REQ-FE-005: 组件模块化
 - REQ-FE-006: API 层抽象
 
+**Plans:** 2 plans
+
+Plans:
+- [x] 04-01-PLAN.md — Data Hub UI 组件实现
+- [ ] 04-02-PLAN.md — 架构基础（TypeScript strict + Context + API 层）
+
 ---
 
 ### Phase 5: 用户体验优化
