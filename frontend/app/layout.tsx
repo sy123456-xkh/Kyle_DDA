@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "InsightFlow — 智能数据分析平台",
-  description: "上传 CSV · 自然语言提问 · 即时洞察 | by KyleStudios",
+  title: "Kyle Studios — 商业智能数据分析",
+  description: "上传 CSV · 自然语言提问 · 即时洞察 | by Kyle Studios",
 };
 
 export default function RootLayout({

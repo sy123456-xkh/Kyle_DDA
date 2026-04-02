@@ -7,7 +7,7 @@ import { DataProvider, useData } from '../contexts/DataContext'
 import { api } from '@/lib/api'
 
 function DataHubContent() {
-  const { profile, isLoading, error, setDataset, setLoading, setError } = useData()
+  const { datasetId, profile, isLoading, error, setDataset, setLoading, setError } = useData()
 
   const handleUpload = async (file: File) => {
     setLoading(true)
@@ -25,12 +25,12 @@ function DataHubContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
+    <div className="min-h-screen bg-white">
+      <Navigation activePage="data-hub" hasDataset={!!datasetId} />
       <main className="max-w-screen-xl mx-auto px-6 py-12">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Data Hub</h1>
-          <p className="text-gray-600">Central intelligence for your raw datasets.</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Data Hub</h1>
+          <p className="text-gray-500">Central intelligence for your raw datasets.</p>
         </div>
 
         {error && (
@@ -41,7 +41,7 @@ function DataHubContent() {
 
         {isLoading ? (
           <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-amber-500 border-t-transparent"></div>
             <p className="mt-4 text-gray-600">Processing...</p>
           </div>
         ) : (

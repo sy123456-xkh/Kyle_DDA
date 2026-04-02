@@ -3,7 +3,8 @@
     "research_enabled": false,
     "ui_spec_enabled": false,
     "auto_commit": true,
-    "verification_mode": "conversational"
+    "verification_mode": "conversational",
+    "_auto_chain_active": false
   },
   "model_profile": "inherit",
   "project_type": "refactor",

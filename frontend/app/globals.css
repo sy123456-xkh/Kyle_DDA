@@ -2,21 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── 冷色系基底 ─────────────────────────────────────── */
+/* ── Kyle Studios 橙色主题 ─────────────────────────────────────── */
 :root {
-  --bg-primary: #0b0f1a;
-  --bg-secondary: #111827;
-  --bg-card: #1a2035;
-  --bg-card-hover: #1f2847;
-  --border: #2a3454;
-  --border-focus: #6366f1;
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent: #6366f1;
-  --accent-glow: rgba(99, 102, 241, 0.15);
-  --success: #34d399;
-  --danger: #f87171;
+  --bg-primary: #fafafa;
+  --bg-secondary: #f5f5f5;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fef3e7;
+  --border: #e5e5e5;
+  --border-focus: #f59e0b;
+  --text-primary: #1a1a1a;
+  --text-secondary: #525252;
+  --text-muted: #737373;
+  --accent: #f59e0b;
+  --accent-hover: #d97706;
+  --accent-glow: rgba(245, 158, 11, 0.15);
+  --success: #10b981;
+  --danger: #ef4444;
 }
 
 html, body {
@@ -28,25 +29,24 @@ html, body {
 /* ── 滚动条 ─────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #2a3454; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #3b4a6b; }
+::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a3a3a3; }
 
 /* ── 玻璃卡片 ───────────────────────────────────────── */
 .glass-card {
-  background: linear-gradient(135deg, rgba(26, 32, 53, 0.8), rgba(17, 24, 39, 0.9));
-  backdrop-filter: blur(12px);
+  background: white;
   border: 1px solid var(--border);
   border-radius: 12px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.3);
+  border-color: rgba(245, 158, 11, 0.3);
   box-shadow: 0 0 20px var(--accent-glow);
 }
 
 /* ── 按钮基础 ───────────────────────────────────────── */
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  background: #f59e0b;
   color: white;
   border: none;
   border-radius: 8px;
@@ -58,8 +58,9 @@ html, body {
   overflow: hidden;
 }
 .btn-primary:hover:not(:disabled) {
+  background: #d97706;
   transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
 }
 .btn-primary:active:not(:disabled) {
   transform: translateY(0);
@@ -87,7 +88,7 @@ html, body {
 
 /* ── 输入框 ─────────────────────────────────────────── */
 .input-field {
-  background: rgba(17, 24, 39, 0.6);
+  background: white;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 14px;
@@ -113,7 +114,7 @@ html, body {
   font-size: 0.82rem;
 }
 .data-table thead th {
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(245, 158, 11, 0.08);
   color: var(--accent);
   font-weight: 600;
   padding: 10px 12px;
@@ -129,11 +130,11 @@ html, body {
   transition: background 0.15s ease;
 }
 .data-table tbody tr:hover {
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(245, 158, 11, 0.05);
 }
 .data-table tbody td {
   padding: 8px 12px;
-  border-bottom: 1px solid rgba(42, 52, 84, 0.5);
+  border-bottom: 1px solid var(--border);
   color: var(--text-secondary);
   max-width: 200px;
   overflow: hidden;
@@ -151,8 +152,8 @@ html, body {
   letter-spacing: 0.03em;
 }
 .tag-type {
-  background: rgba(99, 102, 241, 0.12);
-  color: #818cf8;
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
 }
 .tag-rate-ok {
   background: rgba(52, 211, 153, 0.12);
@@ -181,7 +182,7 @@ html, body {
 
 /* ── 聊天气泡 ───────────────────────────────────────── */
 .chat-bubble-user {
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  background: #f59e0b;
   border-radius: 16px 16px 4px 16px;
   color: white;
 }
@@ -193,13 +194,13 @@ html, body {
 
 /* ── SQL 代码块 ─────────────────────────────────────── */
 .sql-block {
-  background: rgba(0, 0, 0, 0.3);
+  background: #f9fafb;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px 16px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 0.82rem;
-  color: #a5b4fc;
+  color: #92400e;
   overflow-x: auto;
   position: relative;
 }
@@ -219,78 +220,22 @@ html, body {
 }
 
 /* ── Landing 页 ─────────────────────────────────────── */
-.landing-wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-.landing-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-}
-.landing-glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.4;
-}
-.landing-glow-1 {
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.3), transparent 70%);
-  top: -100px; right: -100px;
-  animation: float-glow 8s ease-in-out infinite;
-}
-.landing-glow-2 {
-  width: 400px; height: 400px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.25), transparent 70%);
-  bottom: -80px; left: -80px;
-  animation: float-glow 10s ease-in-out infinite reverse;
-}
-@keyframes float-glow {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(30px, -20px); }
-}
-
-.landing-shape {
-  position: absolute;
-  border: 1px solid rgba(99, 102, 241, 0.15);
-  border-radius: 12px;
-  animation: float-shape 12s ease-in-out infinite;
-}
-.landing-shape-1 {
-  width: 80px; height: 80px;
-  top: 15%; left: 10%;
-  transform: rotate(15deg);
-  animation-delay: 0s;
-}
-.landing-shape-2 {
-  width: 50px; height: 50px;
-  top: 25%; right: 15%;
-  border-radius: 50%;
-  border-color: rgba(139, 92, 246, 0.15);
-  animation-delay: -4s;
-}
-.landing-shape-3 {
-  width: 60px; height: 60px;
-  bottom: 20%; right: 25%;
-  transform: rotate(45deg);
-  animation-delay: -8s;
-}
-@keyframes float-shape {
-  0%, 100% { transform: translateY(0) rotate(var(--r, 15deg)); opacity: 0.4; }
-  50% { transform: translateY(-20px) rotate(var(--r, 15deg)); opacity: 0.8; }
+.landing-title {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 230, 180, 0.95) 0%,
+    rgba(245, 158, 11, 0.9) 50%,
+    rgba(180, 83, 9, 0.7) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
 }
 
 /* ── 下拉选择框 ─────────────────────────────────────── */
 .select-field {
-  background: rgba(17, 24, 39, 0.6);
+  background: white;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px 12px;
@@ -300,7 +245,7 @@ html, body {
   width: 100%;
   outline: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23737373' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 32px;
@@ -341,8 +286,8 @@ html, body {
   justify-content: center;
   flex-shrink: 0;
 }
-.playbook-btn .pb-icon.trend { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-.playbook-btn .pb-icon.topn { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+.playbook-btn .pb-icon.trend { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.playbook-btn .pb-icon.topn { background: rgba(16, 185, 129, 0.15); color: #10b981; }
 .playbook-btn .pb-icon.cross { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
 
 /* ── History 面板 ───────────────────────────────────── */
@@ -374,7 +319,7 @@ html, body {
 
 /* ── Trace 标签 ─────────────────────────────────────── */
 .tag-trace {
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(245, 158, 11, 0.08);
   color: var(--accent);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.7rem;

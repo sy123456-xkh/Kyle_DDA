@@ -1,86 +1,108 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+const Silk = dynamic(() => import("./components/Silk"), { ssr: false });
 
 export default function LandingPage() {
   const router = useRouter();
 
   return (
-    <div className="landing-wrapper">
-      {/* 背景装饰 */}
-      <div className="landing-grid" />
-      <div className="landing-glow landing-glow-1" />
-      <div className="landing-glow landing-glow-2" />
+    <div className="h-screen overflow-hidden relative bg-[#0a0806]">
+      {/* Silk animated background */}
+      <div className="fixed inset-0" style={{ zIndex: 0 }}>
+        <Silk
+          speed={5}
+          scale={1.2}
+          color="#dc9450"
+          noiseIntensity={0.6}
+          rotation={5.1}
+        />
+      </div>
 
-      {/* 浮动几何装饰 */}
-      <div className="landing-shape landing-shape-1" />
-      <div className="landing-shape landing-shape-2" />
-      <div className="landing-shape landing-shape-3" />
-
-      {/* 主内容 */}
-      <div className="relative z-10 flex flex-col items-center text-center px-6 animate-fade-in">
-        {/* Logo */}
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-8 shadow-lg shadow-indigo-500/30">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            <path d="M8 9h8" />
-            <path d="M8 13h4" />
-          </svg>
-        </div>
-
-        {/* 标题 */}
-        <h1 className="text-5xl font-bold tracking-tight mb-4">
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            InsightFlow
+      {/* Content overlay */}
+      <div className="relative z-10 h-full flex flex-col">
+        {/* Top nav bar */}
+        <nav className="flex items-center justify-between px-8 py-5">
+          <span className="text-sm font-bold tracking-widest text-amber-500/80 uppercase">
+            Kyle Studios
           </span>
-        </h1>
-        <p className="text-xl text-[var(--text-secondary)] mb-2 font-medium">
-          智能数据分析平台
-        </p>
-        <p className="text-sm text-[var(--text-muted)] mb-12 max-w-md leading-relaxed">
-          上传 CSV · 自然语言提问 · 即时洞察
-        </p>
-
-        {/* 特性卡片 */}
-        <div className="flex gap-6 mb-12">
-          {[
-            { icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z", label: "CSV 导入", desc: "拖拽上传，自动解析" },
-            { icon: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", label: "智能问答", desc: "自然语言查询数据" },
-            { icon: "M18 20V10M12 20V4M6 20v-6", label: "可视分析", desc: "趋势图表洞察" },
-          ].map((f, i) => (
-            <div
-              key={f.label}
-              className="glass-card p-5 w-44 animate-slide-up"
-              style={{ animationDelay: `${200 + i * 100}ms` }}
+          <div className="flex items-center gap-6 text-xs tracking-widest text-white/40">
+            <button
+              onClick={() => router.push("/data-hub")}
+              className="hover:text-amber-400 transition-colors"
             >
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-600/20 flex items-center justify-center mb-3 mx-auto border border-[var(--border)]">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={f.icon} />
-                </svg>
-              </div>
-              <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1">{f.label}</h3>
-              <p className="text-xs text-[var(--text-muted)]">{f.desc}</p>
+              DATA HUB
+            </button>
+            <button
+              onClick={() => router.push("/copilot")}
+              className="hover:text-amber-400 transition-colors"
+            >
+              COPILOT
+            </button>
+          </div>
+        </nav>
+
+        {/* Center content */}
+        <main className="flex-1 flex flex-col items-center justify-center px-6 -mt-8">
+          <p className="text-[10px] text-amber-500/50 tracking-[0.4em] uppercase mb-5">
+            Editorial Intelligence Platform
+          </p>
+
+          <h1 className="text-5xl md:text-7xl font-bold text-center leading-tight mb-4 landing-title">
+            商业智能数据分析
+          </h1>
+
+          <p className="text-white/30 text-sm md:text-base max-w-lg text-center leading-relaxed mb-10">
+            Upload CSV. Ask in natural language. Get instant insights.
+            <br />
+            The architect of your data&apos;s future.
+          </p>
+
+          <div className="flex gap-4">
+            <button
+              onClick={() => router.push("/data-hub")}
+              className="group px-8 py-3 bg-amber-500/90 text-black rounded-full text-sm font-semibold hover:bg-amber-400 transition-all hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] flex items-center gap-2"
+            >
+              开始探索
+              <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            <button className="px-8 py-3 border border-white/15 text-white/50 rounded-full text-sm font-medium hover:border-amber-500/40 hover:text-amber-400/80 transition-all">
+              View Demo
+            </button>
+          </div>
+
+          {/* Mini dashboard preview — compact */}
+          <div className="mt-12 w-full max-w-md">
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-sm p-4 flex items-end gap-1.5 h-20">
+              {[40, 65, 45, 80, 55, 70, 90, 60, 75, 50, 85, 65, 70, 55, 80, 60, 72, 48, 88, 62].map((h, i) => (
+                <div
+                  key={i}
+                  className="flex-1 rounded-sm transition-all"
+                  style={{
+                    height: `${h}%`,
+                    background: i % 4 === 0
+                      ? "rgba(245, 158, 11, 0.7)"
+                      : "rgba(255, 255, 255, 0.08)",
+                  }}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        </main>
 
-        {/* 开始体验按钮 */}
-        <button
-          className="btn-primary text-lg px-10 py-3.5 rounded-xl animate-slide-up"
-          style={{ animationDelay: "500ms" }}
-          onClick={() => router.push("/workspace")}
-        >
-          开始体验
-          <svg className="inline-block ml-2 -mr-1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
-          </svg>
-        </button>
-
-        {/* 底部品牌 */}
-        <p className="mt-16 text-xs text-[var(--text-muted)] tracking-wider animate-fade-in" style={{ animationDelay: "700ms" }}>
-          by <span className="text-[var(--text-secondary)] font-medium">KyleStudios</span>
-        </p>
+        {/* Footer */}
+        <footer className="px-8 py-4 flex justify-between items-center text-[10px] text-white/20 tracking-wider">
+          <p>&copy; 2024 KYLE STUDIOS</p>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-amber-500/50 transition-colors">PRIVACY</a>
+            <a href="#" className="hover:text-amber-500/50 transition-colors">TERMS</a>
+            <a href="#" className="hover:text-amber-500/50 transition-colors">API</a>
+          </div>
+        </footer>
       </div>
     </div>
   );

@@ -131,7 +131,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Data Hub UI 组件实现
-- [ ] 04-02-PLAN.md — 架构基础（TypeScript strict + Context + API 层）
+- [x] 04-02-PLAN.md — 架构基础（TypeScript strict + Context + API 层）
 
 ---
 
