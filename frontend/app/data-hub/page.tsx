@@ -3,22 +3,28 @@
 import Navigation from '../components/Navigation'
 import UploadZone from '../components/UploadZone'
 import DataProfile from '../components/DataProfile'
+import ErrorBoundary from '../components/ErrorBoundary'
+import { SkeletonCard } from '../components/Skeleton'
+import { useToast } from '../components/Toast'
 import { DataProvider, useData } from '../contexts/DataContext'
 import { api } from '@/lib/api'
 
 function DataHubContent() {
-  const { datasetId, profile, isLoading, error, setDataset, setLoading, setError } = useData()
+  const { datasetId, profile, isLoading, setDataset, setLoading } = useData()
+  const { show } = useToast()
 
   const handleUpload = async (file: File) => {
     setLoading(true)
-    setError(null)
 
     try {
       const { dataset_id } = await api.uploadDataset(file)
       const profileData = await api.getProfile(dataset_id)
       setDataset(dataset_id, profileData)
+      show(`数据集 ${dataset_id} 导入成功`, 'success')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed')
+      const msg = err instanceof Error ? err.message : 'Upload failed'
+      show(msg, 'error')
+      throw err // re-throw so UploadZone can detect failure
     } finally {
       setLoading(false)
     }
@@ -33,23 +39,20 @@ function DataHubContent() {
           <p className="text-gray-500">Central intelligence for your raw datasets.</p>
         </div>
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-            {error}
-          </div>
-        )}
+        <ErrorBoundary>
+          <UploadZone
+            onUpload={handleUpload}
+            onSizeError={(msg) => show(msg, 'error')}
+          />
 
-        {isLoading ? (
-          <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-amber-500 border-t-transparent"></div>
-            <p className="mt-4 text-gray-600">Processing...</p>
-          </div>
-        ) : (
-          <>
-            <UploadZone onUpload={handleUpload} />
+          {isLoading ? (
+            <div className="mt-8">
+              <SkeletonCard />
+            </div>
+          ) : (
             <DataProfile data={profile} />
-          </>
-        )}
+          )}
+        </ErrorBoundary>
       </main>
     </div>
   )
