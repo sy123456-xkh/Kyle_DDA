@@ -1,7 +1,7 @@
 ---
 project: Chat-to-BI MVP 全面重构
 milestone: M1 - 重构与功能完善
-current_phase: 5
+current_phase: 6
 status: in_progress
 last_updated: 2026-04-03
 ---
@@ -11,10 +11,10 @@ last_updated: 2026-04-03
 ## 当前进度
 
 **里程碑：** M1 - 重构与功能完善
-**当前阶段：** Phase 5 - 用户体验优化
-**当前计划：** Plan 02 of 02
-**状态：** 进行中
-**总进度：** 4/9 阶段已完成 (~44%)
+**当前阶段：** Phase 6 - 数据可视化
+**当前计划：** Plan 01
+**状态：** 待开始
+**总进度：** 5/9 阶段已完成 (~56%)
 
 ## 已完成阶段
 
@@ -35,6 +35,10 @@ last_updated: 2026-04-03
 - Plan 02: TypeScript strict + Context + API层 (fdfc9ec)
 - 额外: Silk背景 + Copilot页面 + UI优化 (b6a777b)
 
+### Phase 5: 用户体验优化 ✅
+- Plan 01: Toast/ErrorBoundary/Skeleton 基础组件
+- Plan 02: UX 集成 — UploadZone增强 + workspace/data-hub页面集成 (696eaf4)
+
 ## 已解决的技术债务
 
 - ✅ SQL 注入风险 → Phase 2 参数化查询
@@ -45,8 +49,8 @@ last_updated: 2026-04-03
 
 ## 待完成阶段
 
-- **Phase 5:** 用户体验优化（加载状态、错误边界、拖拽上传）← 当前 (Plan 01 完成)
-- **Phase 6:** 数据可视化（Recharts图表）
+- **Phase 5:** 用户体验优化 ✅
+- **Phase 6:** 数据可视化（Recharts图表）← 当前
 - **Phase 7:** 代码质量与规范（linter、格式化）
 - **Phase 8:** 测试覆盖（pytest + Vitest）
 - **Phase 9:** 文档完善（API文档、开发指南）
@@ -69,4 +73,4 @@ last_updated: 2026-04-03
 
 ## 下一步
 
-执行 Phase 5 Plan 02: UX 集成（将 Toast/ErrorBoundary/Skeleton 接入现有页面）
+执行 Phase 6 Plan 01: 数据可视化（Recharts 图表集成）
