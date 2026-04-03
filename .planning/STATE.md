@@ -12,6 +12,7 @@ last_updated: 2026-04-03
 
 **里程碑：** M1 - 重构与功能完善
 **当前阶段：** Phase 5 - 用户体验优化
+**当前计划：** Plan 02 of 02
 **状态：** 进行中
 **总进度：** 4/9 阶段已完成 (~44%)
 
@@ -44,13 +45,18 @@ last_updated: 2026-04-03
 
 ## 待完成阶段
 
-- **Phase 5:** 用户体验优化（加载状态、错误边界、拖拽上传）← 当前
+- **Phase 5:** 用户体验优化（加载状态、错误边界、拖拽上传）← 当前 (Plan 01 完成)
 - **Phase 6:** 数据可视化（Recharts图表）
 - **Phase 7:** 代码质量与规范（linter、格式化）
 - **Phase 8:** 测试覆盖（pytest + Vitest）
 - **Phase 9:** 文档完善（API文档、开发指南）
 
 ## 决策记录
+
+### 2026-04-03: Phase 5 Plan 01 UX 基础组件
+- **Toast:** React Context + useToast() hook，3秒自动消失
+- **ErrorBoundary:** Class component（React 要求），支持自定义 fallback
+- **Skeleton:** 三种变体匹配 DataProfile 卡片布局
 
 ### 2026-04-01: 重构范围确定
 - **决策：** 全面重构（质量+架构+功能）
@@ -63,4 +69,4 @@ last_updated: 2026-04-03
 
 ## 下一步
 
-执行 Phase 5: 用户体验优化
+执行 Phase 5 Plan 02: UX 集成（将 Toast/ErrorBoundary/Skeleton 接入现有页面）

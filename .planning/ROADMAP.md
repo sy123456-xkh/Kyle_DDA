@@ -162,7 +162,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — UX 基础组件（Toast + ErrorBoundary + Skeleton）
+- [x] 05-01-PLAN.md — UX 基础组件（Toast + ErrorBoundary + Skeleton）
 - [ ] 05-02-PLAN.md — UX 集成（UploadZone 增强 + 页面集成）
 
 ---
