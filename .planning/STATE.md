@@ -1,9 +1,9 @@
 ---
 project: Chat-to-BI MVP 全面重构
 milestone: M1 - 重构与功能完善
-current_phase: null
-status: initialized
-last_updated: 2026-04-01
+current_phase: 5
+status: in_progress
+last_updated: 2026-04-03
 ---
 
 # 项目状态
@@ -11,63 +11,56 @@ last_updated: 2026-04-01
 ## 当前进度
 
 **里程碑：** M1 - 重构与功能完善
-**当前阶段：** 未开始
-**状态：** 已初始化
+**当前阶段：** Phase 5 - 用户体验优化
+**状态：** 进行中
+**总进度：** 4/9 阶段已完成 (~44%)
 
-## 已完成工作
+## 已完成阶段
 
-### 项目初始化
-- ✅ 代码库映射完成（7个文档）
-- ✅ 项目配置创建
-- ✅ 需求文档编写（47个需求）
-- ✅ 路线图规划（9个阶段）
+### Phase 1: 后端架构重构 ✅
+- 配置管理、类型注解、统一错误处理
+- Commit: acb1bd8
 
-### 现有功能（Step 1-3）
-- ✅ CSV 文件上传
-- ✅ 数据字段分析（profile）
-- ✅ 基础查询功能（规则引擎）
-- ✅ 前端三栏布局
+### Phase 2: 安全加固 ✅
+- SQL参数化查询、文件上传验证、输入校验
+- Commit: 3150ba7
 
-## 待办事项
+### Phase 3: 数据库层优化 ✅
+- 连接池、元数据表、查询历史
+- Commit: 1b63e5c
 
-### 立即行动
-1. 执行 `/gsd:plan-phase 1` 规划第一阶段（后端架构重构）
-2. 或执行 `/gsd:discuss-phase 1` 深入讨论实现细节
+### Phase 4: 前端架构重构 ✅
+- Plan 01: Data Hub UI 组件实现 (5559893)
+- Plan 02: TypeScript strict + Context + API层 (fdfc9ec)
+- 额外: Silk背景 + Copilot页面 + UI优化 (b6a777b)
 
-### 阶段概览
-- Phase 1: 后端架构重构（类型安全、模块化）
-- Phase 2: 安全加固（SQL注入、文件验证）
-- Phase 3: 数据库层优化（连接池、元数据）
-- Phase 4: 前端架构重构（TypeScript、状态管理）
-- Phase 5: 用户体验优化（加载状态、错误处理）
-- Phase 6: 数据可视化（图表功能）
-- Phase 7: 代码质量与规范（linter、文档）
-- Phase 8: 测试覆盖（单元测试、集成测试）
-- Phase 9: 文档完善（API文档、开发指南）
+## 已解决的技术债务
 
-## 技术债务
+- ✅ SQL 注入风险 → Phase 2 参数化查询
+- ✅ 文件上传安全 → Phase 2 文件验证
+- ✅ 无类型检查 → Phase 4 TypeScript strict
+- ✅ 无状态管理 → Phase 4 React Context
+- ⏳ 无测试覆盖 → Phase 8 待处理
 
-参考 `.planning/codebase/CONCERNS.md` 中识别的问题：
-- SQL 注入风险（高优先级）
-- 文件上传安全（高优先级）
-- 无类型检查（中优先级）
-- 无测试覆盖（中优先级）
-- 无状态管理（中优先级）
+## 待完成阶段
+
+- **Phase 5:** 用户体验优化（加载状态、错误边界、拖拽上传）← 当前
+- **Phase 6:** 数据可视化（Recharts图表）
+- **Phase 7:** 代码质量与规范（linter、格式化）
+- **Phase 8:** 测试覆盖（pytest + Vitest）
+- **Phase 9:** 文档完善（API文档、开发指南）
 
 ## 决策记录
 
 ### 2026-04-01: 重构范围确定
 - **决策：** 全面重构（质量+架构+功能）
-- **范围：** 后端API、数据库、前端组件、安全验证
 - **保留：** 目录结构不变
-- **理由：** 提升代码质量和可维护性，为后续功能扩展打基础
 
 ### 2026-04-01: 技术选型
 - **状态管理：** React Context + useReducer
 - **图表库：** Recharts
 - **测试框架：** pytest + Vitest
-- **理由：** 适合项目规模，避免过度工程化
 
 ## 下一步
 
-运行 `/gsd:plan-phase 1` 开始第一阶段的详细规划。
+执行 Phase 5: 用户体验优化
