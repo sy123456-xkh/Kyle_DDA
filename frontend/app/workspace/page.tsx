@@ -2,6 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useToast } from "../components/Toast";
+import ErrorBoundary from "../components/ErrorBoundary";
+import { SkeletonCard, SkeletonTable } from "../components/Skeleton";
 
 const API = process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000";
 
@@ -62,6 +65,8 @@ const Ico = ({ d, size = 16, className = "" }: { d: string; size?: number; class
 
 /* ── 主工作台 ───────────────────────────────────────── */
 export default function WorkspacePage() {
+  const { show } = useToast();
+
   // 数据集
   const [datasetId, setDatasetId] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -247,12 +252,15 @@ export default function WorkspacePage() {
       ]);
       if (pRes.ok) setProfile(await pRes.json());
       if (mRes.ok) setManifest(await mRes.json());
+      show(`数据集 ${data.dataset_id} 导入成功`, 'success');
     } catch (e) {
-      setUploadError(e instanceof Error ? e.message : "未知错误");
+      const errMsg = e instanceof Error ? e.message : "未知错误";
+      setUploadError(errMsg);
+      show(errMsg, 'error');
     } finally {
       setUploading(false);
     }
-  }, []);
+  }, [show]);
 
   /* ── Manifest 更新 ─────────────────────────────────── */
   const updateManifest = async (field: "primary_time_col" | "metric_col" | "metric_agg" | "time_grain", value: string) => {
@@ -298,11 +306,13 @@ export default function WorkspacePage() {
       const data = await res.json();
       if (!res.ok) {
         setMessages((prev) => [...prev, { role: "assistant", content: `查询失败: ${data.detail}` }]);
+        show(`查询失败: ${data.detail}`, 'error');
         return;
       }
       handleResult(q, data);
     } catch {
       setMessages((prev) => [...prev, { role: "assistant", content: "网络错误，请检查后端是否启动" }]);
+      show("网络错误，请检查后端是否启动", 'error');
     } finally {
       setQuerying(false);
     }
@@ -332,11 +342,13 @@ export default function WorkspacePage() {
       const data = await res.json();
       if (!res.ok) {
         setMessages((prev) => [...prev, { role: "assistant", content: `Playbook 执行失败: ${data.detail}` }]);
+        show(`Playbook 执行失败: ${data.detail}`, 'error');
         return;
       }
       handleResult(label, data);
     } catch {
       setMessages((prev) => [...prev, { role: "assistant", content: "网络错误" }]);
+      show("网络错误", 'error');
     } finally {
       setQuerying(false);
     }
@@ -400,6 +412,7 @@ export default function WorkspacePage() {
       {/* 三栏 */}
       <div className="flex flex-1 overflow-hidden">
         {/* ── 左栏 ──────────────────────────────────────── */}
+        <ErrorBoundary>
         <aside className="w-80 flex-shrink-0 border-r border-[var(--border)] flex flex-col bg-[var(--bg-secondary)]">
           {/* 上传 */}
           <div className="p-4 border-b border-[var(--border)]">
@@ -413,9 +426,12 @@ export default function WorkspacePage() {
             >
               <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); }} />
               {uploading ? (
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-2 w-full">
                   <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
                   <span className="text-sm text-[var(--text-secondary)]">导入中<span className="loading-dots" /></span>
+                  <div className="w-full h-1.5 bg-[var(--bg-primary)] rounded-full overflow-hidden mt-1">
+                    <div className="h-full bg-[var(--accent)] rounded-full animate-pulse" style={{ width: '75%', transition: 'width 0.3s ease-out' }} />
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2 text-[var(--text-muted)]">
@@ -493,6 +509,12 @@ export default function WorkspacePage() {
           )}
 
           {/* Profile */}
+          {uploading && !profile && (
+            <div className="flex-1 overflow-y-auto p-4">
+              <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">加载字段信息...</h3>
+              <SkeletonCard />
+            </div>
+          )}
           {profile && (
             <div className="flex-1 overflow-y-auto p-4 animate-slide-up">
               <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">字段概览 · {profile.columns.length} 列</h3>
@@ -526,8 +548,10 @@ export default function WorkspacePage() {
             </div>
           )}
         </aside>
+        </ErrorBoundary>
 
         {/* ── 中栏：聊天 ────────────────────────────────── */}
+        <ErrorBoundary>
         <main className="flex-1 flex flex-col min-w-0">
           {/* History 抽屉 */}
           <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
@@ -617,8 +641,10 @@ export default function WorkspacePage() {
             )}
           </div>
         </main>
+        </ErrorBoundary>
 
         {/* ── 右栏：结果 + 图表 ──────────────────────────── */}
+        <ErrorBoundary>
         <aside className="w-[440px] flex-shrink-0 border-l border-[var(--border)] flex flex-col bg-[var(--bg-secondary)]">
           {activeResult ? (
             <div className="flex flex-col h-full animate-fade-in">
@@ -683,6 +709,11 @@ export default function WorkspacePage() {
                 )}
               </div>
             </div>
+          ) : querying ? (
+            <div className="flex flex-col h-full p-6 gap-4 animate-fade-in">
+              <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">查询执行中...</h3>
+              <SkeletonTable />
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)] gap-3">
               <div className="w-16 h-16 rounded-2xl bg-[var(--bg-card)] flex items-center justify-center border border-[var(--border)]">
@@ -692,6 +723,7 @@ export default function WorkspacePage() {
             </div>
           )}
         </aside>
+        </ErrorBoundary>
       </div>
     </div>
   );
