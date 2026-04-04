@@ -24,10 +24,7 @@ export const COLOR_THEMES: Record<string, string[]> = {
   rose: ["#f43f5e", "#fb7185", "#fda4af", "#e11d48", "#881337"],
 };
 
-/* ── Pie default palette ───────────────────────────── */
-const PIE_COLORS = ["#6366f1", "#a78bfa", "#3b82f6", "#22d3ee", "#14b8a6"];
-
-interface ChartViewProps {
+/* ── ChartView Props ──────────────────────────────── */interface ChartViewProps {
   spec: ChartSpec;
   overrides?: ChartOverrides;
   className?: string;
@@ -67,6 +64,23 @@ export default function ChartView({ spec, overrides, className }: ChartViewProps
       const xData = merged.data.map((d) => String(d[xKey] ?? ""));
       const yData = merged.data.map((d) => Number(d[yKey]) || 0);
 
+      /* Resolve color theme palette */
+      const palette = COLOR_THEMES[merged.colorTheme ?? "indigo"] ?? COLOR_THEMES.indigo;
+      const primaryColor = palette[0];
+      const secondaryColor = palette[1];
+      const darkColor = palette[3];
+
+      /* Resolve legend position */
+      const lp = merged.legendPosition ?? "bottom";
+      const legendCfg = {
+        orient: (lp === "left" || lp === "right" ? "vertical" : "horizontal") as "vertical" | "horizontal",
+        ...(lp === "top" ? { top: 24, left: "center" } : {}),
+        ...(lp === "bottom" ? { bottom: 4, left: "center" } : {}),
+        ...(lp === "left" ? { left: 4, top: "middle" } : {}),
+        ...(lp === "right" ? { right: 4, top: "middle" } : {}),
+        textStyle: { color: "#94a3b8", fontSize: 10 },
+      };
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let option: any;
 
@@ -94,14 +108,14 @@ export default function ChartView({ spec, overrides, className }: ChartViewProps
             smooth: true,
             symbol: "circle",
             symbolSize: 5,
-            lineStyle: { color: "#6366f1", width: 2 },
+            lineStyle: { color: primaryColor, width: 2 },
             areaStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: "rgba(99, 102, 241, 0.25)" },
-                { offset: 1, color: "rgba(99, 102, 241, 0.02)" },
+                { offset: 0, color: primaryColor + "40" },
+                { offset: 1, color: primaryColor + "05" },
               ]),
             },
-            itemStyle: { color: "#6366f1" },
+            itemStyle: { color: primaryColor },
           }],
         };
       } else if (merged.type === "bar") {
@@ -129,8 +143,8 @@ export default function ChartView({ spec, overrides, className }: ChartViewProps
             barMaxWidth: 36,
             itemStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: "#818cf8" },
-                { offset: 1, color: "#4f46e5" },
+                { offset: 0, color: secondaryColor },
+                { offset: 1, color: darkColor },
               ]),
               borderRadius: [4, 4, 0, 0],
             },
@@ -140,7 +154,7 @@ export default function ChartView({ spec, overrides, className }: ChartViewProps
         const pieData = merged.data.map((d, i) => ({
           name: String(d[xKey] ?? ""),
           value: Number(d[yKey]) || 0,
-          itemStyle: { color: PIE_COLORS[i % PIE_COLORS.length] },
+          itemStyle: { color: palette[i % palette.length] },
         }));
         option = {
           backgroundColor: "transparent",
@@ -152,11 +166,7 @@ export default function ChartView({ spec, overrides, className }: ChartViewProps
             textStyle: { color: "#e2e8f0", fontSize: 12 },
             formatter: "{b}: {c} ({d}%)",
           },
-          legend: {
-            orient: "horizontal",
-            bottom: 4,
-            textStyle: { color: "#94a3b8", fontSize: 10 },
-          },
+          legend: legendCfg,
           series: [{
             type: "pie",
             radius: ["40%", "70%"],

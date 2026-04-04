@@ -6,6 +6,7 @@ import { useToast } from "../components/Toast";
 import ErrorBoundary from "../components/ErrorBoundary";
 import { SkeletonCard, SkeletonTable } from "../components/Skeleton";
 import ChartView, { ChartOverrides } from "../components/ChartView";
+import ChartConfig from "../components/ChartConfig";
 
 const API = process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000";
 
@@ -116,6 +117,11 @@ export default function WorkspacePage() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // 新查询结果时重置图表配置
+  useEffect(() => {
+    setChartOverrides({});
+  }, [activeResult]);
 
   /* ── 上传 CSV ──────────────────────────────────────── */
   const handleUpload = useCallback(async (file: File) => {
@@ -545,6 +551,14 @@ export default function WorkspacePage() {
               {showChart && activeResult.chart && (
                 <div className="p-4 border-b border-[var(--border)]">
                   <ChartView spec={activeResult.chart} overrides={chartOverrides} />
+                  <div className="mt-3">
+                    <ChartConfig
+                      spec={activeResult.chart}
+                      columns={activeResult.rows.length > 0 ? Object.keys(activeResult.rows[0]) : []}
+                      overrides={chartOverrides}
+                      onChange={setChartOverrides}
+                    />
+                  </div>
                 </div>
               )}
 
