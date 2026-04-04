@@ -185,15 +185,14 @@ def execute_playbook(req: PlaybookRequest) -> QueryResponse:
         chart = ChartSpec(type="bar", title="Top N 排行", x=dc, y="value")
 
     elif req.playbook == "cross":
-        if not dc or not tc or not mc:
-            raise ValueError("交叉分析需要指定 time_col、metric_col 和 dim_col")
+        if not dc or not mc:
+            raise ValueError("交叉分析需要指定 metric_col 和 dim_col")
         sql = (
-            f"SELECT \"{dc}\", date_trunc('{grain}', CAST(\"{tc}\" AS TIMESTAMP)) AS dt, "
-            f"{agg_upper}(\"{mc}\") AS value "
+            f"SELECT \"{dc}\", {agg_upper}(\"{mc}\") AS value "
             f"FROM {view} "
-            f"GROUP BY \"{dc}\", dt ORDER BY \"{dc}\", dt"
+            f"GROUP BY \"{dc}\" ORDER BY value DESC LIMIT 10"
         )
-        chart = ChartSpec(type="table", title="交叉分析")
+        chart = ChartSpec(type="pie", title="交叉分析", x=dc, y="value")
 
     else:
         raise ValueError(f"未知 playbook 类型: {req.playbook}")

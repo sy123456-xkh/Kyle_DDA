@@ -65,7 +65,7 @@ class QueryMeta(BaseModel):
 
 # ── Chart ───────────────────────────────────────────────
 class ChartSpec(BaseModel):
-    type: str  # "line" | "bar" | "table"
+    type: str  # "line" | "bar" | "pie" | "table"
     title: str = ""
     x: Optional[str] = None
     y: Optional[Union[str, list[str]]] = None
