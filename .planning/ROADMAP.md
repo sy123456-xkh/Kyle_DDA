@@ -163,7 +163,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — UX 基础组件（Toast + ErrorBoundary + Skeleton）
-- [ ] 05-02-PLAN.md — UX 集成（UploadZone 增强 + 页面集成）
+- [x] 05-02-PLAN.md — UX 集成（UploadZone 增强 + 页面集成）
 
 ---
 
@@ -189,6 +189,12 @@ Plans:
 **需求映射：**
 - REQ-FUNC-005: 图表生成
 - REQ-FUNC-006: 图表交互
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — 饼图支持 + 图表组件抽取（ChartView）
+- [ ] 06-02-PLAN.md — 图表配置面板（类型/字段/颜色/标题/图例）
 
 ---
 
