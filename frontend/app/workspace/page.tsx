@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useToast } from "../components/Toast";
 import ErrorBoundary from "../components/ErrorBoundary";
 import { SkeletonCard, SkeletonTable } from "../components/Skeleton";
+import ChartView, { ChartOverrides } from "../components/ChartView";
 
 const API = process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000";
 
@@ -30,7 +31,7 @@ interface Manifest {
 }
 interface QueryMeta { trace_id: string; elapsed_ms: number; row_count: number; }
 interface ChartSpec {
-  type: "line" | "bar" | "table";
+  type: "line" | "bar" | "pie" | "table";
   title: string;
   x: string | null;
   y: string | string[] | null;
@@ -93,8 +94,8 @@ export default function WorkspacePage() {
   // Playbook 选择列
   const [dimCol, setDimCol] = useState<string>("");
 
-  // ECharts ref
-  const chartDomRef = useRef<HTMLDivElement>(null);
+  // Chart overrides (for Plan 02 config panel)
+  const [chartOverrides, setChartOverrides] = useState<ChartOverrides>({});
 
   // 加载历史
   useEffect(() => {
@@ -115,114 +116,6 @@ export default function WorkspacePage() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  // ECharts 渲染
-  useEffect(() => {
-    const dom = chartDomRef.current;
-    const chartSpec = activeResult?.chart;
-
-    if (!dom || !chartSpec || chartSpec.type === "table" || chartSpec.data.length === 0) {
-      return;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let instance: any = null;
-    let cancelled = false;
-    let resizeHandler: (() => void) | null = null;
-
-    import("echarts").then((echarts) => {
-      if (cancelled || !dom || !dom.isConnected) return;
-
-      instance = echarts.init(dom);
-
-      const xKey = chartSpec.x!;
-      const yKey = Array.isArray(chartSpec.y) ? chartSpec.y[0] : chartSpec.y!;
-      const xData = chartSpec.data.map((d) => String(d[xKey] ?? ""));
-      const yData = chartSpec.data.map((d) => Number(d[yKey]) || 0);
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let option: any;
-
-      if (chartSpec.type === "line") {
-        option = {
-          backgroundColor: "transparent",
-          title: { text: chartSpec.title, left: "center", top: 4, textStyle: { color: "#e2e8f0", fontSize: 14, fontWeight: "500" } },
-          grid: { left: 56, right: 16, top: 40, bottom: 28 },
-          tooltip: { trigger: "axis", backgroundColor: "#1a2035", borderColor: "#2a3454", textStyle: { color: "#e2e8f0", fontSize: 12 } },
-          xAxis: {
-            type: "category",
-            data: xData,
-            axisLine: { lineStyle: { color: "#2a3454" } },
-            axisLabel: { color: "#94a3b8", fontSize: 10 },
-          },
-          yAxis: {
-            type: "value",
-            axisLine: { show: false },
-            axisLabel: { color: "#94a3b8", fontSize: 10 },
-            splitLine: { lineStyle: { color: "#1e293b" } },
-          },
-          series: [{
-            type: "line",
-            data: yData,
-            smooth: true,
-            symbol: "circle",
-            symbolSize: 5,
-            lineStyle: { color: "#6366f1", width: 2 },
-            areaStyle: {
-              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: "rgba(99, 102, 241, 0.25)" },
-                { offset: 1, color: "rgba(99, 102, 241, 0.02)" },
-              ]),
-            },
-            itemStyle: { color: "#6366f1" },
-          }],
-        };
-      } else if (chartSpec.type === "bar") {
-        const needRotate = xData.some((s) => s.length > 6);
-        option = {
-          backgroundColor: "transparent",
-          title: { text: chartSpec.title, left: "center", top: 4, textStyle: { color: "#e2e8f0", fontSize: 14, fontWeight: "500" } },
-          grid: { left: 56, right: 16, top: 40, bottom: needRotate ? 56 : 28 },
-          tooltip: { trigger: "axis", backgroundColor: "#1a2035", borderColor: "#2a3454", textStyle: { color: "#e2e8f0", fontSize: 12 } },
-          xAxis: {
-            type: "category",
-            data: xData,
-            axisLine: { lineStyle: { color: "#2a3454" } },
-            axisLabel: { color: "#94a3b8", fontSize: 10, rotate: needRotate ? 30 : 0 },
-          },
-          yAxis: {
-            type: "value",
-            axisLine: { show: false },
-            axisLabel: { color: "#94a3b8", fontSize: 10 },
-            splitLine: { lineStyle: { color: "#1e293b" } },
-          },
-          series: [{
-            type: "bar",
-            data: yData,
-            barMaxWidth: 36,
-            itemStyle: {
-              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: "#818cf8" },
-                { offset: 1, color: "#4f46e5" },
-              ]),
-              borderRadius: [4, 4, 0, 0],
-            },
-          }],
-        };
-      }
-
-      if (option) instance.setOption(option);
-
-      resizeHandler = () => instance?.resize();
-      window.addEventListener("resize", resizeHandler);
-    });
-
-    return () => {
-      cancelled = true;
-      if (resizeHandler) window.removeEventListener("resize", resizeHandler);
-      if (instance) instance.dispose();
-    };
-  }, [activeResult]);
 
   /* ── 上传 CSV ──────────────────────────────────────── */
   const handleUpload = useCallback(async (file: File) => {
@@ -381,7 +274,7 @@ export default function WorkspacePage() {
   const numericCols = profile?.columns.filter((c) => ["BIGINT", "INTEGER", "DOUBLE", "FLOAT", "DECIMAL", "SMALLINT"].includes(c.type.toUpperCase())) || [];
   const allCols = profile?.columns || [];
 
-  const showChart = activeResult?.chart && activeResult.chart.type !== "table" && activeResult.chart.data.length > 0;
+  const showChart = activeResult?.chart && ["line", "bar", "pie"].includes(activeResult.chart.type) && activeResult.chart.data.length > 0;
 
   /* ── 渲染 ─────────────────────────────────────────── */
   return (
@@ -649,9 +542,9 @@ export default function WorkspacePage() {
           {activeResult ? (
             <div className="flex flex-col h-full animate-fade-in">
               {/* 图表区 */}
-              {showChart && (
+              {showChart && activeResult.chart && (
                 <div className="p-4 border-b border-[var(--border)]">
-                  <div ref={chartDomRef} style={{ width: "100%", height: "260px" }} />
+                  <ChartView spec={activeResult.chart} overrides={chartOverrides} />
                 </div>
               )}
 

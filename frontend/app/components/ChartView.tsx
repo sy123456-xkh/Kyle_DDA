@@ -41,7 +41,7 @@ export default function ChartView({ spec, overrides, className }: ChartViewProps
   const merged = { ...spec } as ChartSpec & ChartOverrides;
   if (overrides) {
     for (const [k, v] of Object.entries(overrides)) {
-      if (v !== undefined) (merged as Record<string, unknown>)[k] = v;
+      if (v !== undefined) (merged as unknown as Record<string, unknown>)[k] = v;
     }
   }
   /* Skip rendering for table type or empty data */
