@@ -190,10 +190,10 @@ Plans:
 - REQ-FUNC-005: 图表生成
 - REQ-FUNC-006: 图表交互
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 06-01-PLAN.md — 饼图支持 + 图表组件抽取（ChartView）
+- [x] 06-01-PLAN.md — 饼图支持 + 图表组件抽取（ChartView）
 - [ ] 06-02-PLAN.md — 图表配置面板（类型/字段/颜色/标题/图例）
 
 ---

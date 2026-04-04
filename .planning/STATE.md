@@ -3,7 +3,7 @@ project: Chat-to-BI MVP 全面重构
 milestone: M1 - 重构与功能完善
 current_phase: 6
 status: in_progress
-last_updated: 2026-04-03
+last_updated: 2026-04-04
 ---
 
 # 项目状态
@@ -12,7 +12,7 @@ last_updated: 2026-04-03
 
 **里程碑：** M1 - 重构与功能完善
 **当前阶段：** Phase 6 - 数据可视化
-**当前计划：** Plan 01
+**当前计划：** Plan 02
 **状态：** 待开始
 **总进度：** 5/9 阶段已完成 (~56%)
 
@@ -50,12 +50,17 @@ last_updated: 2026-04-03
 ## 待完成阶段
 
 - **Phase 5:** 用户体验优化 ✅
-- **Phase 6:** 数据可视化（Recharts图表）← 当前
+- **Phase 6:** 数据可视化（ECharts图表）← 当前 (Plan 01 完成)
 - **Phase 7:** 代码质量与规范（linter、格式化）
 - **Phase 8:** 测试覆盖（pytest + Vitest）
 - **Phase 9:** 文档完善（API文档、开发指南）
 
 ## 决策记录
+
+### 2026-04-04: Phase 6 Plan 01 饼图 + 图表组件抽取
+- **ChartView:** 可复用图表组件，支持 line/bar/pie，导出 ChartOverrides + COLOR_THEMES
+- **Cross Playbook:** 改为按 dim_col 聚合返回 pie 图表（不再需要 time_col）
+- **图表库：** 继续使用 ECharts（非 Recharts），已有完整集成
 
 ### 2026-04-03: Phase 5 Plan 01 UX 基础组件
 - **Toast:** React Context + useToast() hook，3秒自动消失
@@ -68,9 +73,9 @@ last_updated: 2026-04-03
 
 ### 2026-04-01: 技术选型
 - **状态管理：** React Context + useReducer
-- **图表库：** Recharts
+- **图表库：** ECharts 5.6.0
 - **测试框架：** pytest + Vitest
 
 ## 下一步
 
-执行 Phase 6 Plan 01: 数据可视化（Recharts 图表集成）
+执行 Phase 6 Plan 02: 图表配置面板（ChartConfig 组件）
