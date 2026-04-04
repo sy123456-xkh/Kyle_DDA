@@ -11,10 +11,10 @@ last_updated: 2026-04-04
 ## 当前进度
 
 **里程碑：** M1 - 重构与功能完善
-**当前阶段：** Phase 6 - 数据可视化
-**当前计划：** Plan 02
+**当前阶段：** Phase 7 - 代码质量与规范
+**当前计划：** Plan 01
 **状态：** 待开始
-**总进度：** 5/9 阶段已完成 (~56%)
+**总进度：** 6/9 阶段已完成 (~67%)
 
 ## 已完成阶段
 
@@ -39,6 +39,10 @@ last_updated: 2026-04-04
 - Plan 01: Toast/ErrorBoundary/Skeleton 基础组件
 - Plan 02: UX 集成 — UploadZone增强 + workspace/data-hub页面集成 (696eaf4)
 
+### Phase 6: 数据可视化 ✅
+- Plan 01: ChartView 组件抽取 + 饼图支持 + Cross Playbook 改造
+- Plan 02: ChartConfig 配置面板 + workspace 集成 + 配色/图例覆盖 (b307068)
+
 ## 已解决的技术债务
 
 - ✅ SQL 注入风险 → Phase 2 参数化查询
@@ -50,12 +54,17 @@ last_updated: 2026-04-04
 ## 待完成阶段
 
 - **Phase 5:** 用户体验优化 ✅
-- **Phase 6:** 数据可视化（ECharts图表）← 当前 (Plan 01 完成)
-- **Phase 7:** 代码质量与规范（linter、格式化）
+- **Phase 6:** 数据可视化（ECharts图表）✅
+- **Phase 7:** 代码质量与规范（linter、格式化）← 当前
 - **Phase 8:** 测试覆盖（pytest + Vitest）
 - **Phase 9:** 文档完善（API文档、开发指南）
 
 ## 决策记录
+
+### 2026-04-04: Phase 6 Plan 02 图表配置面板
+- **ChartConfig:** 折叠面板，6项配置（类型/X轴/Y轴/标题/配色/图例）
+- **配色方案：** 动态 palette 从 COLOR_THEMES 查找，替代硬编码颜色
+- **图例位置：** 映射到 ECharts orient + 位置属性（上/下/左/右）
 
 ### 2026-04-04: Phase 6 Plan 01 饼图 + 图表组件抽取
 - **ChartView:** 可复用图表组件，支持 line/bar/pie，导出 ChartOverrides + COLOR_THEMES
@@ -78,4 +87,4 @@ last_updated: 2026-04-04
 
 ## 下一步
 
-执行 Phase 6 Plan 02: 图表配置面板（ChartConfig 组件）
+执行 Phase 7: 代码质量与规范
