@@ -1,7 +1,7 @@
 ---
 project: Chat-to-BI MVP 全面重构
 milestone: M1 - 重构与功能完善
-current_phase: 8
+current_phase: 9
 status: in_progress
 last_updated: 2026-04-07
 ---
@@ -11,9 +11,9 @@ last_updated: 2026-04-07
 ## 当前进度
 
 **里程碑：** M1 - 重构与功能完善
-**当前阶段：** Phase 8 - 测试覆盖
+**当前阶段：** Phase 9 - 文档完善
 **状态：** 进行中
-**总进度：** 7/9 阶段已完成 (~78%)
+**总进度：** 8/9 阶段已完成 (~89%)
 
 ## 已完成阶段
 
@@ -48,45 +48,45 @@ last_updated: 2026-04-07
 - black + ruff 格式化，26 处 docstring 补充
 - Commit: 4854b25
 
+### Phase 8: 测试覆盖 ✅
+- Plan 01: 后端 pytest — 49 个测试，覆盖率 76%
+- Plan 02: 前端 Vitest — 60 个测试，覆盖率 52%
+- 额外修复: get_conn() 连接复用 Bug + query_history 自增序列 Bug
+- Commit: 1b3e744
+
 ## 已解决的技术债务
 
 - ✅ SQL 注入风险 → Phase 2 参数化查询
 - ✅ 文件上传安全 → Phase 2 文件验证
 - ✅ 无类型检查 → Phase 4 TypeScript strict
 - ✅ 无状态管理 → Phase 4 React Context
-- ⏳ 无测试覆盖 → Phase 8 待处理
+- ✅ 无测试覆盖 → Phase 8 pytest(76%) + Vitest(52%)
 
 ## 待完成阶段
 
-- **Phase 5:** 用户体验优化 ✅
-- **Phase 6:** 数据可视化（ECharts图表）✅
-- **Phase 7:** 代码质量与规范（linter、格式化）← 当前
-- **Phase 8:** 测试覆盖（pytest + Vitest）← 当前
-- **Phase 9:** 文档完善（API文档、开发指南）
+- **Phase 9:** 文档完善（API文档、开发指南）← 当前
 
 ## 决策记录
+
+### 2026-04-07: Phase 8 测试覆盖
+- **后端:** pytest + httpx TestClient，临时目录隔离 DuckDB
+- **前端:** Vitest + @testing-library/react，jsdom 环境
+- **覆盖目标:** 后端 ≥60% → 实际 76%，前端 ≥50% → 实际 52%
 
 ### 2026-04-06: Phase 7 代码质量
 - **格式化工具：** black（后端）+ prettier（前端）
 - **Linter：** ruff（后端）+ ESLint next/core-web-vitals（前端）
 - **mypy.ini → pyproject.toml：** 统一配置，python_version 3.9→3.11
-- **ChartConfig:** 折叠面板，6项配置（类型/X轴/Y轴/标题/配色/图例）
-- **配色方案：** 动态 palette 从 COLOR_THEMES 查找，替代硬编码颜色
-- **图例位置：** 映射到 ECharts orient + 位置属性（上/下/左/右）
 
-### 2026-04-04: Phase 6 Plan 01 饼图 + 图表组件抽取
+### 2026-04-05: Phase 6 数据可视化
 - **ChartView:** 可复用图表组件，支持 line/bar/pie，导出 ChartOverrides + COLOR_THEMES
-- **Cross Playbook:** 改为按 dim_col 聚合返回 pie 图表（不再需要 time_col）
-- **图表库：** 继续使用 ECharts（非 Recharts），已有完整集成
+- **ChartConfig:** 折叠面板，6项配置（类型/X轴/Y轴/标题/配色/图例）
+- **图表库：** 继续使用 ECharts（非 Recharts）
 
-### 2026-04-03: Phase 5 Plan 01 UX 基础组件
+### 2026-04-03: Phase 5 UX 基础组件
 - **Toast:** React Context + useToast() hook，3秒自动消失
 - **ErrorBoundary:** Class component（React 要求），支持自定义 fallback
 - **Skeleton:** 三种变体匹配 DataProfile 卡片布局
-
-### 2026-04-01: 重构范围确定
-- **决策：** 全面重构（质量+架构+功能）
-- **保留：** 目录结构不变
 
 ### 2026-04-01: 技术选型
 - **状态管理：** React Context + useReducer
@@ -95,4 +95,4 @@ last_updated: 2026-04-07
 
 ## 下一步
 
-执行 Phase 7: 代码质量与规范
+执行 Phase 9: 文档完善（API 文档 Swagger、开发指南 README、常见问题排查）
