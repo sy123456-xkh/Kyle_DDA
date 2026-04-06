@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
+import { useData } from "../contexts/DataContext"
 
 const API = process.env.NEXT_PUBLIC_API_BASE || "http://127.0.0.1:8000"
 
@@ -18,18 +19,9 @@ export default function CopilotPage() {
   const [querying, setQuerying] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
 
-  // Mock dataset state (in real app, from context/URL params)
-  const [datasetId] = useState<string | null>(null)
-  const mockFields = [
-    "GMV",
-    "ARPU",
-    "Region",
-    "Payment_Type",
-    "User_ID",
-    "Category",
-    "Timestamp",
-    "Store_ID",
-  ]
+  // 从 DataContext 读取真实上传的数据集
+  const { datasetId, profile } = useData()
+  const fields = profile?.columns.map((c) => c.name) ?? []
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -153,36 +145,50 @@ export default function CopilotPage() {
           <div className="p-5">
             <h2 className="text-sm font-bold text-gray-900 mb-1">当前数据集 (Current Dataset)</h2>
             <div className="flex items-center gap-1.5 mb-4">
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <span className={`w-2 h-2 rounded-full ${datasetId ? "bg-green-500" : "bg-gray-300"}`} />
               <span className="text-xs text-gray-500 uppercase tracking-wide">
-                Project Alpha Active
+                {datasetId ? datasetId : "未上传"}
               </span>
             </div>
 
             <div className="flex gap-3 mb-6">
               <div className="bg-gray-50 rounded-lg px-3 py-2 flex-1">
                 <p className="text-[10px] text-gray-400 uppercase tracking-wide">Rows</p>
-                <p className="text-lg font-bold text-gray-900">200,000</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {profile ? profile.row_count.toLocaleString() : "—"}
+                </p>
               </div>
               <div className="bg-gray-50 rounded-lg px-3 py-2 flex-1">
                 <p className="text-[10px] text-gray-400 uppercase tracking-wide">Columns</p>
-                <p className="text-lg font-bold text-gray-900">15</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {profile ? profile.columns.length : "—"}
+                </p>
               </div>
             </div>
 
             <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-3">
               Available Fields
             </p>
-            <div className="flex flex-wrap gap-2">
-              {mockFields.map((f, i) => (
-                <span
-                  key={f}
-                  className={`text-xs px-3 py-1 rounded-full border ${i === 0 ? "border-amber-500 text-amber-600 bg-amber-50" : "border-gray-200 text-gray-600"}`}
-                >
-                  {f}
-                </span>
-              ))}
-            </div>
+            {datasetId ? (
+              <div className="flex flex-wrap gap-2">
+                {fields.map((f, i) => (
+                  <span
+                    key={f}
+                    className={`text-xs px-3 py-1 rounded-full border ${i === 0 ? "border-amber-500 text-amber-600 bg-amber-50" : "border-gray-200 text-gray-600"}`}
+                  >
+                    {f}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400">
+                请先前往{" "}
+                <Link href="/data-hub" className="text-amber-600 underline">
+                  Data Hub
+                </Link>{" "}
+                上传数据集
+              </p>
+            )}
           </div>
 
           <div className="mt-auto p-5 space-y-2">
