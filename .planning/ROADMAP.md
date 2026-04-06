@@ -254,6 +254,12 @@ Plans:
 - REQ-TEST-002: 集成测试
 - REQ-TEST-003: 组件测试
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — 后端 pytest（护栏/上传/profile/查询 + 覆盖率）
+- [ ] 08-02-PLAN.md — 前端 Vitest（Toast/ErrorBoundary/Skeleton 组件测试）
+
 ---
 
 ### Phase 9: 文档完善

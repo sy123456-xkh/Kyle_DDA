@@ -1,9 +1,9 @@
 ---
 project: Chat-to-BI MVP 全面重构
 milestone: M1 - 重构与功能完善
-current_phase: 6
+current_phase: 8
 status: in_progress
-last_updated: 2026-04-04
+last_updated: 2026-04-07
 ---
 
 # 项目状态
@@ -11,10 +11,9 @@ last_updated: 2026-04-04
 ## 当前进度
 
 **里程碑：** M1 - 重构与功能完善
-**当前阶段：** Phase 7 - 代码质量与规范
-**当前计划：** Plan 01
-**状态：** 待开始
-**总进度：** 6/9 阶段已完成 (~67%)
+**当前阶段：** Phase 8 - 测试覆盖
+**状态：** 进行中
+**总进度：** 7/9 阶段已完成 (~78%)
 
 ## 已完成阶段
 
@@ -43,6 +42,12 @@ last_updated: 2026-04-04
 - Plan 01: ChartView 组件抽取 + 饼图支持 + Cross Playbook 改造
 - Plan 02: ChartConfig 配置面板 + workspace 集成 + 配色/图例覆盖 (b307068)
 
+### Phase 7: 代码质量与规范 ✅
+- pyproject.toml (black/ruff/mypy)，删除 mypy.ini
+- ESLint + Prettier 前端配置
+- black + ruff 格式化，26 处 docstring 补充
+- Commit: 4854b25
+
 ## 已解决的技术债务
 
 - ✅ SQL 注入风险 → Phase 2 参数化查询
@@ -56,12 +61,15 @@ last_updated: 2026-04-04
 - **Phase 5:** 用户体验优化 ✅
 - **Phase 6:** 数据可视化（ECharts图表）✅
 - **Phase 7:** 代码质量与规范（linter、格式化）← 当前
-- **Phase 8:** 测试覆盖（pytest + Vitest）
+- **Phase 8:** 测试覆盖（pytest + Vitest）← 当前
 - **Phase 9:** 文档完善（API文档、开发指南）
 
 ## 决策记录
 
-### 2026-04-04: Phase 6 Plan 02 图表配置面板
+### 2026-04-06: Phase 7 代码质量
+- **格式化工具：** black（后端）+ prettier（前端）
+- **Linter：** ruff（后端）+ ESLint next/core-web-vitals（前端）
+- **mypy.ini → pyproject.toml：** 统一配置，python_version 3.9→3.11
 - **ChartConfig:** 折叠面板，6项配置（类型/X轴/Y轴/标题/配色/图例）
 - **配色方案：** 动态 palette 从 COLOR_THEMES 查找，替代硬编码颜色
 - **图例位置：** 映射到 ECharts orient + 位置属性（上/下/左/右）
