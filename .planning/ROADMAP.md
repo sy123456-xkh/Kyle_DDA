@@ -223,6 +223,11 @@ Plans:
 - REQ-FE-003: 代码风格
 - REQ-DOC-003: 代码注释
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 07-01-PLAN.md — linter/formatter 配置 + 格式化修复 + docstring 补充
+
 ---
 
 ### Phase 8: 测试覆盖
