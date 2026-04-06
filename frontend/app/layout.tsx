@@ -1,17 +1,13 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { ToastProvider } from "./components/Toast";
+import type { Metadata } from "next"
+import "./globals.css"
+import { ToastProvider } from "./components/Toast"
 
 export const metadata: Metadata = {
   title: "Kyle Studios — 商业智能数据分析",
   description: "上传 CSV · 自然语言提问 · 即时洞察 | by Kyle Studios",
-};
+}
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
       <head>
@@ -24,5 +20,5 @@ export default function RootLayout({
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
-  );
+  )
 }

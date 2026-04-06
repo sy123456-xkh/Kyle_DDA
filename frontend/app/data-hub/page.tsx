@@ -1,13 +1,13 @@
-'use client'
+"use client"
 
-import Navigation from '../components/Navigation'
-import UploadZone from '../components/UploadZone'
-import DataProfile from '../components/DataProfile'
-import ErrorBoundary from '../components/ErrorBoundary'
-import { SkeletonCard } from '../components/Skeleton'
-import { useToast } from '../components/Toast'
-import { DataProvider, useData } from '../contexts/DataContext'
-import { api } from '@/lib/api'
+import Navigation from "../components/Navigation"
+import UploadZone from "../components/UploadZone"
+import DataProfile from "../components/DataProfile"
+import ErrorBoundary from "../components/ErrorBoundary"
+import { SkeletonCard } from "../components/Skeleton"
+import { useToast } from "../components/Toast"
+import { DataProvider, useData } from "../contexts/DataContext"
+import { api } from "@/lib/api"
 
 function DataHubContent() {
   const { datasetId, profile, isLoading, setDataset, setLoading } = useData()
@@ -20,10 +20,10 @@ function DataHubContent() {
       const { dataset_id } = await api.uploadDataset(file)
       const profileData = await api.getProfile(dataset_id)
       setDataset(dataset_id, profileData)
-      show(`数据集 ${dataset_id} 导入成功`, 'success')
+      show(`数据集 ${dataset_id} 导入成功`, "success")
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Upload failed'
-      show(msg, 'error')
+      const msg = err instanceof Error ? err.message : "Upload failed"
+      show(msg, "error")
       throw err // re-throw so UploadZone can detect failure
     } finally {
       setLoading(false)
@@ -40,10 +40,7 @@ function DataHubContent() {
         </div>
 
         <ErrorBoundary>
-          <UploadZone
-            onUpload={handleUpload}
-            onSizeError={(msg) => show(msg, 'error')}
-          />
+          <UploadZone onUpload={handleUpload} onSizeError={(msg) => show(msg, "error")} />
 
           {isLoading ? (
             <div className="mt-8">

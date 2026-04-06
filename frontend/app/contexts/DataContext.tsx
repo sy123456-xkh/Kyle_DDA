@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
-import { createContext, useContext, useState, ReactNode } from 'react'
-import { DataProfile } from '@/types'
+import { createContext, useContext, useState, ReactNode } from "react"
+import { DataProfile } from "@/types"
 
 interface DataContextType {
   datasetId: string | null
@@ -59,7 +59,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 export function useData() {
   const context = useContext(DataContext)
   if (context === undefined) {
-    throw new Error('useData must be used within a DataProvider')
+    throw new Error("useData must be used within a DataProvider")
   }
   return context
 }
