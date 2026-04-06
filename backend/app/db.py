@@ -15,8 +15,17 @@ _thread_local = threading.local()
 
 
 def get_conn() -> duckdb.DuckDBPyConnection:
-    """返回到 backend/data/app.duckdb 的连接（线程安全，连接复用）"""
-    if not hasattr(_thread_local, "connection") or _thread_local.connection is None:
+    """返回到 backend/data/app.duckdb 的连接（线程安全，连接复用）。
+    若连接已关闭则自动重建。
+    """
+    conn = getattr(_thread_local, "connection", None)
+    if conn is None:
+        _thread_local.connection = duckdb.connect(DB_PATH, read_only=False)
+        return _thread_local.connection  # type: ignore[no-any-return]
+    # 检测连接是否已关闭（执行轻量测试查询）
+    try:
+        conn.execute("SELECT 1")
+    except Exception:
         _thread_local.connection = duckdb.connect(DB_PATH, read_only=False)
     return _thread_local.connection  # type: ignore[no-any-return]
 
@@ -45,11 +54,14 @@ def init_metadata_tables() -> None:
     """
     )
 
-    # 创建 query_history 表
+    # 创建自增序列（若不存在）
+    conn.execute("CREATE SEQUENCE IF NOT EXISTS seq_query_history")
+
+    # 创建 query_history 表（id 使用序列自增）
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS query_history (
-            id INTEGER PRIMARY KEY,
+            id INTEGER DEFAULT nextval('seq_query_history') PRIMARY KEY,
             dataset_id VARCHAR,
             question VARCHAR,
             sql VARCHAR,
