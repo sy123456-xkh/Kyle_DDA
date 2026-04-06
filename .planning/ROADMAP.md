@@ -226,7 +226,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 07-01-PLAN.md — linter/formatter 配置 + 格式化修复 + docstring 补充
+- [x] 07-01-PLAN.md — linter/formatter 配置 + 格式化修复 + docstring 补充
 
 ---
 
