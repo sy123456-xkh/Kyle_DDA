@@ -2,7 +2,7 @@
 project: Chat-to-BI MVP 全面重构
 milestone: M1 - 重构与功能完善
 current_phase: 9
-status: in_progress
+status: completed
 last_updated: 2026-04-07
 ---
 
@@ -11,9 +11,8 @@ last_updated: 2026-04-07
 ## 当前进度
 
 **里程碑：** M1 - 重构与功能完善
-**当前阶段：** Phase 9 - 文档完善
-**状态：** 进行中
-**总进度：** 8/9 阶段已完成 (~89%)
+**状态：** ✅ **全部完成**
+**总进度：** 9/9 阶段已完成 (100%)
 
 ## 已完成阶段
 
@@ -54,6 +53,11 @@ last_updated: 2026-04-07
 - 额外修复: get_conn() 连接复用 Bug + query_history 自增序列 Bug
 - Commit: 1b3e744
 
+### Phase 9: 文档完善 ✅
+- 根目录 README.md（新建，项目入口文档）
+- backend/README.md（全面重写，含全部 API 端点 + curl 示例）
+- frontend/README.md（全面重写，含组件架构 + 命令速查）
+
 ## 已解决的技术债务
 
 - ✅ SQL 注入风险 → Phase 2 参数化查询
@@ -64,7 +68,7 @@ last_updated: 2026-04-07
 
 ## 待完成阶段
 
-- **Phase 9:** 文档完善（API文档、开发指南）← 当前
+**全部完成！** 里程碑 M1 交付完毕。
 
 ## 决策记录
 
@@ -95,4 +99,7 @@ last_updated: 2026-04-07
 
 ## 下一步
 
-执行 Phase 9: 文档完善（API 文档 Swagger、开发指南 README、常见问题排查）
+**M1 里程碑已完成。** 可考虑：
+- 启动 M2：LLM 集成（Claude API → 自然语言转 SQL）
+- 准备面试演示材料
+- 部署到线上环境

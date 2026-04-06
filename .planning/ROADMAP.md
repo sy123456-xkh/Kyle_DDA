@@ -285,6 +285,11 @@ Plans:
 - REQ-DOC-001: API 文档
 - REQ-DOC-002: 开发文档
 
+**Plans:** 1 plan
+
+Plans:
+- [x] 09-01-PLAN.md — 根目录 README + 后端/前端 README 全面更新
+
 ---
 
 ## 阶段依赖关系
