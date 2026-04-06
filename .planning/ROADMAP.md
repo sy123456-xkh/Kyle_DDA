@@ -257,8 +257,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — 后端 pytest（护栏/上传/profile/查询 + 覆盖率）
-- [ ] 08-02-PLAN.md — 前端 Vitest（Toast/ErrorBoundary/Skeleton 组件测试）
+- [x] 08-01-PLAN.md — 后端 pytest（护栏/上传/profile/查询 + 覆盖率）
+- [x] 08-02-PLAN.md — 前端 Vitest（Toast/ErrorBoundary/Skeleton 组件测试）
 
 ---
 
