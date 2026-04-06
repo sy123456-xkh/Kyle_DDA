@@ -29,8 +29,14 @@ _manifests_cache: dict[str, ManifestResponse] = {}
 # 用于自动推断时间列的关键词
 _TIME_COL_HINTS = re.compile(r"date|time|日期|时间|month|year|day|week", re.IGNORECASE)
 _NUMERIC_TYPES = {
-    "BIGINT", "INTEGER", "DOUBLE", "FLOAT", "DECIMAL",
-    "SMALLINT", "TINYINT", "HUGEINT",
+    "BIGINT",
+    "INTEGER",
+    "DOUBLE",
+    "FLOAT",
+    "DECIMAL",
+    "SMALLINT",
+    "TINYINT",
+    "HUGEINT",
 }
 
 
@@ -43,7 +49,7 @@ def _validate_csv_content(content: bytes) -> None:
     """验证 CSV 内容是否有效"""
     try:
         # 尝试解析 CSV
-        text = content.decode('utf-8')
+        text = content.decode("utf-8")
         reader = csv.reader(io.StringIO(text))
         header = next(reader, None)
         if not header:
@@ -56,11 +62,12 @@ def _validate_csv_content(content: bytes) -> None:
 
 def _validate_dataset_id(dataset_id: str) -> None:
     """验证 dataset_id 格式"""
-    if not re.match(r'^ds_[a-z0-9]{8}$', dataset_id):
+    if not re.match(r"^ds_[a-z0-9]{8}$", dataset_id):
         raise DatasetNotFoundError(f"无效的 dataset_id: {dataset_id}")
 
 
 # ── Manifest 文件读写 ──────────────────────────────────
+
 
 def _manifest_path(dataset_id: str) -> str:
     return os.path.join(DATA_DIR, f"{dataset_id}.manifest.json")
@@ -91,6 +98,7 @@ def _load_manifest(dataset_id: str) -> Optional[ManifestResponse]:
 
 # ── 自动推断 ───────────────────────────────────────────
 
+
 def _guess_time_col(columns: list[ColumnInfo]) -> Optional[str]:
     for c in columns:
         if _TIME_COL_HINTS.search(c.name):
@@ -108,7 +116,8 @@ def _guess_metric_col(columns: list[ColumnInfo]) -> Optional[str]:
 def _guess_dimension_candidates(columns: list[ColumnInfo]) -> list[str]:
     """非数值型、非时间列视为维度候选"""
     return [
-        c.name for c in columns
+        c.name
+        for c in columns
         if c.type.upper() not in _NUMERIC_TYPES and not _TIME_COL_HINTS.search(c.name)
     ]
 
@@ -120,6 +129,7 @@ def _guess_metric_candidates(columns: list[ColumnInfo]) -> list[str]:
 
 # ── Upload ──────────────────────────────────────────────
 def upload_csv(filename: str, content: bytes) -> UploadResponse:
+    """验证并保存 CSV 文件，在 DuckDB 中建表/视图，自动推断并持久化 manifest。"""
     # 验证 CSV 内容
     _validate_csv_content(content)
 
@@ -154,7 +164,7 @@ def upload_csv(filename: str, content: bytes) -> UploadResponse:
         # 插入元数据到 datasets 表
         conn.execute(
             "INSERT INTO datasets (id, filename, row_count, column_count) VALUES (?, ?, ?, ?)",
-            [dataset_id, filename, row_count, len(columns)]
+            [dataset_id, filename, row_count, len(columns)],
         )
 
         # 自动推断并持久化 manifest
@@ -177,6 +187,7 @@ def upload_csv(filename: str, content: bytes) -> UploadResponse:
 
 # ── Profile ─────────────────────────────────────────────
 def profile_dataset(dataset_id: str) -> ProfileResponse:
+    """使用 DuckDB SQL 对数据集进行 profiling，返回行数、列信息、缺失率和样例值。"""
     _validate_dataset_id(dataset_id)
     view_name = f"v_dataset_{dataset_id}"
     conn = get_conn()
@@ -195,15 +206,19 @@ def profile_dataset(dataset_id: str) -> ProfileResponse:
 
         # 3) 缺失率
         missing_exprs = ", ".join(
-            f"SUM(CASE WHEN \"{c.name}\" IS NULL THEN 1 ELSE 0 END)::DOUBLE / COUNT(*)::DOUBLE AS \"{c.name}\""
+            f'SUM(CASE WHEN "{c.name}" IS NULL THEN 1 ELSE 0 END)::DOUBLE / COUNT(*)::DOUBLE AS "{c.name}"'
             for c in columns
         )
         missing_row_result = conn.execute(
             f"SELECT {missing_exprs} FROM {view_name}"
         ).fetchone()
-        missing_row = missing_row_result if missing_row_result else tuple([0.0] * len(columns))
+        missing_row = (
+            missing_row_result if missing_row_result else tuple([0.0] * len(columns))
+        )
         missing_rate = [
-            MissingRate(name=columns[i].name, missing_rate=round(missing_row[i] or 0.0, 4))
+            MissingRate(
+                name=columns[i].name, missing_rate=round(missing_row[i] or 0.0, 4)
+            )
             for i in range(len(columns))
         ]
 
@@ -214,9 +229,7 @@ def profile_dataset(dataset_id: str) -> ProfileResponse:
                 f'SELECT DISTINCT "{c.name}" FROM {view_name} '
                 f'WHERE "{c.name}" IS NOT NULL LIMIT 5'
             ).fetchall()
-            sample_values.append(
-                SampleValues(name=c.name, values=[r[0] for r in rows])
-            )
+            sample_values.append(SampleValues(name=c.name, values=[r[0] for r in rows]))
 
         return ProfileResponse(
             row_count=row_count,
@@ -230,6 +243,7 @@ def profile_dataset(dataset_id: str) -> ProfileResponse:
 
 # ── Manifest ────────────────────────────────────────────
 def get_manifest(dataset_id: str) -> ManifestResponse:
+    """加载并返回指定数据集的 manifest，不存在时抛出 DatasetNotFoundError。"""
     _validate_dataset_id(dataset_id)
     m = _load_manifest(dataset_id)
     if m is None:
@@ -238,6 +252,7 @@ def get_manifest(dataset_id: str) -> ManifestResponse:
 
 
 def update_manifest(dataset_id: str, update: ManifestUpdate) -> ManifestResponse:
+    """更新指定数据集的 manifest 配置并持久化到文件。"""
     _validate_dataset_id(dataset_id)
     m = _load_manifest(dataset_id)
     if m is None:

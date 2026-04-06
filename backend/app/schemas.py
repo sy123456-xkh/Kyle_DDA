@@ -1,31 +1,42 @@
 """Pydantic 请求/响应模型"""
 
 from typing import Optional, Union
+
 from pydantic import BaseModel
 
 
 # ── Upload ──────────────────────────────────────────────
 class UploadResponse(BaseModel):
+    """CSV 上传成功后返回的数据集 ID。"""
+
     dataset_id: str
 
 
 # ── Profile ─────────────────────────────────────────────
 class ColumnInfo(BaseModel):
+    """单列的名称与 DuckDB 数据类型。"""
+
     name: str
     type: str
 
 
 class MissingRate(BaseModel):
+    """单列的缺失率（0~1）。"""
+
     name: str
     missing_rate: float
 
 
 class SampleValues(BaseModel):
+    """单列的前 5 个非空样例值。"""
+
     name: str
     values: list
 
 
 class ProfileResponse(BaseModel):
+    """数据集 profiling 结果，包含行数、列信息、缺失率和样例值。"""
+
     row_count: int
     columns: list[ColumnInfo]
     missing_rate: list[MissingRate]
@@ -34,6 +45,8 @@ class ProfileResponse(BaseModel):
 
 # ── Manifest ────────────────────────────────────────────
 class ManifestUpdate(BaseModel):
+    """用于更新 manifest 的可选字段（PATCH 语义）。"""
+
     primary_time_col: Optional[str] = None
     metric_col: Optional[str] = None
     metric_agg: Optional[str] = None
@@ -41,6 +54,8 @@ class ManifestUpdate(BaseModel):
 
 
 class ManifestResponse(BaseModel):
+    """数据集语义推断结果，包含时间列、指标列及候选维度/指标列表。"""
+
     dataset_id: str
     view_name: Optional[str] = None
     primary_time_col: Optional[str] = None
@@ -53,11 +68,15 @@ class ManifestResponse(BaseModel):
 
 # ── Chat Query ──────────────────────────────────────────
 class QueryRequest(BaseModel):
+    """聊天查询请求：数据集 ID + 自然语言问题。"""
+
     dataset_id: str
     question: str
 
 
 class QueryMeta(BaseModel):
+    """查询执行元信息：trace ID、耗时（毫秒）和返回行数。"""
+
     trace_id: str
     elapsed_ms: float
     row_count: int
@@ -65,6 +84,8 @@ class QueryMeta(BaseModel):
 
 # ── Chart ───────────────────────────────────────────────
 class ChartSpec(BaseModel):
+    """图表规格：类型、轴映射和数据（由 execute_query 填充）。"""
+
     type: str  # "line" | "bar" | "pie" | "table"
     title: str = ""
     x: Optional[str] = None
@@ -74,6 +95,8 @@ class ChartSpec(BaseModel):
 
 
 class QueryResponse(BaseModel):
+    """查询执行结果：生成的 SQL、数据行、元信息及可选图表 spec。"""
+
     sql: str
     rows: list[dict]
     meta: QueryMeta
@@ -82,6 +105,8 @@ class QueryResponse(BaseModel):
 
 # ── Playbook ────────────────────────────────────────────
 class PlaybookRequest(BaseModel):
+    """预定义分析 playbook 请求：类型（trend/topn/cross）及所需列参数。"""
+
     dataset_id: str
     playbook: str  # "trend" | "topn" | "cross"
     time_col: Optional[str] = None
@@ -91,4 +116,6 @@ class PlaybookRequest(BaseModel):
 
 # ── 通用错误 ────────────────────────────────────────────
 class ErrorResponse(BaseModel):
+    """通用错误响应体。"""
+
     detail: str

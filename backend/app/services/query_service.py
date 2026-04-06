@@ -9,7 +9,7 @@ from typing import Optional
 from app.db import get_conn
 from app.exceptions import SQLGuardrailError
 from app.schemas import ChartSpec, PlaybookRequest, QueryMeta, QueryResponse
-from app.services.dataset_service import get_manifest, _validate_dataset_id
+from app.services.dataset_service import _validate_dataset_id, get_manifest
 
 logger = logging.getLogger("chat-to-bi")
 
@@ -74,7 +74,9 @@ def _guard_download_sql(sql: str, dataset_id: str) -> str:
     return sql
 
 
-def _execute_sql(sql: str, trace: str, chart: Optional[ChartSpec] = None) -> QueryResponse:
+def _execute_sql(
+    sql: str, trace: str, chart: Optional[ChartSpec] = None
+) -> QueryResponse:
     """执行 SQL 并返回统一 QueryResponse（复用逻辑）"""
     sql = _guard_sql(sql)
     conn = get_conn()
@@ -86,7 +88,9 @@ def _execute_sql(sql: str, trace: str, chart: Optional[ChartSpec] = None) -> Que
         elapsed_ms = round((time.perf_counter() - t0) * 1000, 2)
 
         rows = [dict(zip(columns, row)) for row in raw_rows]
-        logger.info("[%s] SQL=%s elapsed=%.2fms rows=%d", trace, sql, elapsed_ms, len(rows))
+        logger.info(
+            "[%s] SQL=%s elapsed=%.2fms rows=%d", trace, sql, elapsed_ms, len(rows)
+        )
 
         # 如果传入了 chart 模板，填充 data
         if chart is not None:
@@ -114,6 +118,7 @@ def _build_sql(dataset_id: str, question: str) -> str:
 
 # ── Chat Query ──────────────────────────────────────────
 def execute_query(dataset_id: str, question: str) -> QueryResponse:
+    """根据自然语言问题生成 SQL、执行查询并记录历史，返回 QueryResponse。"""
     _validate_dataset_id(dataset_id)
     sql = _build_sql(dataset_id, question)
     chart = ChartSpec(type="table", title="查询结果")
@@ -124,7 +129,7 @@ def execute_query(dataset_id: str, question: str) -> QueryResponse:
     conn = get_conn()
     conn.execute(
         "INSERT INTO query_history (dataset_id, question, sql, elapsed_ms) VALUES (?, ?, ?, ?)",
-        [dataset_id, question, result.sql, result.meta.elapsed_ms]
+        [dataset_id, question, result.sql, result.meta.elapsed_ms],
     )
 
     return result
@@ -136,7 +141,7 @@ def get_query_history(dataset_id: str, limit: int = 10) -> list[dict]:
     conn = get_conn()
     rows = conn.execute(
         "SELECT question, sql, created_at, elapsed_ms FROM query_history WHERE dataset_id = ? ORDER BY created_at DESC LIMIT ?",
-        [dataset_id, limit]
+        [dataset_id, limit],
     ).fetchall()
     return [
         {"question": r[0], "sql": r[1], "created_at": str(r[2]), "elapsed_ms": r[3]}
@@ -146,6 +151,7 @@ def get_query_history(dataset_id: str, limit: int = 10) -> list[dict]:
 
 # ── Playbook ────────────────────────────────────────────
 def execute_playbook(req: PlaybookRequest) -> QueryResponse:
+    """按指定 playbook（trend/topn/cross）构建聚合 SQL 并执行，返回带图表 spec 的结果。"""
     _validate_dataset_id(req.dataset_id)
     view = f"v_dataset_{req.dataset_id}"
     tc = req.time_col
@@ -156,7 +162,11 @@ def execute_playbook(req: PlaybookRequest) -> QueryResponse:
     try:
         manifest = get_manifest(req.dataset_id)
         agg = manifest.metric_agg if manifest.metric_agg in _VALID_AGGS else "sum"
-        grain = manifest.time_grain if manifest.time_grain in {"day", "week", "month"} else "day"
+        grain = (
+            manifest.time_grain
+            if manifest.time_grain in {"day", "week", "month"}
+            else "day"
+        )
     except ValueError:
         agg = "sum"
         grain = "day"
@@ -168,7 +178,7 @@ def execute_playbook(req: PlaybookRequest) -> QueryResponse:
             raise ValueError("趋势分析需要指定 time_col 和 metric_col")
         sql = (
             f"SELECT date_trunc('{grain}', CAST(\"{tc}\" AS TIMESTAMP)) AS dt, "
-            f"{agg_upper}(\"{mc}\") AS value "
+            f'{agg_upper}("{mc}") AS value '
             f"FROM {view} "
             f"GROUP BY dt ORDER BY dt"
         )
@@ -178,9 +188,9 @@ def execute_playbook(req: PlaybookRequest) -> QueryResponse:
         if not dc or not mc:
             raise ValueError("Top N 分析需要指定 dim_col 和 metric_col")
         sql = (
-            f"SELECT \"{dc}\", {agg_upper}(\"{mc}\") AS value "
+            f'SELECT "{dc}", {agg_upper}("{mc}") AS value '
             f"FROM {view} "
-            f"GROUP BY \"{dc}\" ORDER BY value DESC LIMIT 10"
+            f'GROUP BY "{dc}" ORDER BY value DESC LIMIT 10'
         )
         chart = ChartSpec(type="bar", title="Top N 排行", x=dc, y="value")
 
@@ -188,9 +198,9 @@ def execute_playbook(req: PlaybookRequest) -> QueryResponse:
         if not dc or not mc:
             raise ValueError("交叉分析需要指定 metric_col 和 dim_col")
         sql = (
-            f"SELECT \"{dc}\", {agg_upper}(\"{mc}\") AS value "
+            f'SELECT "{dc}", {agg_upper}("{mc}") AS value '
             f"FROM {view} "
-            f"GROUP BY \"{dc}\" ORDER BY value DESC LIMIT 10"
+            f'GROUP BY "{dc}" ORDER BY value DESC LIMIT 10'
         )
         chart = ChartSpec(type="pie", title="交叉分析", x=dc, y="value")
 
