@@ -292,6 +292,22 @@ Plans:
 
 ---
 
+### Phase 10: Copilot AI — DataContext + Copilot + DataHub + Claude API
+**目标：** 修复 DataContext 跨页面断层，接入 Claude API 实现自然语言转 SQL
+
+**范围：**
+- DataContext 跨页面共享修复
+- 全局 Navigation（ClientLayout）
+- Copilot 页面 nav 清理
+- Claude API 集成
+
+**Plans:** 1/N plans executed
+
+Plans:
+- [x] 10-01-PLAN.md — DataContext 跨页面修复 + 全局 Navigation（ClientLayout）
+
+---
+
 ## 阶段依赖关系
 
 ```
