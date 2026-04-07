@@ -1,6 +1,5 @@
 "use client"
 
-import Navigation from "../components/Navigation"
 import UploadZone from "../components/UploadZone"
 import DataProfile from "../components/DataProfile"
 import ErrorBoundary from "../components/ErrorBoundary"
@@ -32,7 +31,6 @@ function DataHubContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation activePage="data-hub" hasDataset={!!datasetId} />
       <main className="max-w-screen-xl mx-auto px-6 py-12">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Data Hub</h1>
