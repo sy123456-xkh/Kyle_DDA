@@ -12,6 +12,8 @@ from app.config import settings
 from app.db import init_metadata_tables
 from app.exceptions import DatasetNotFoundError, FileValidationError, SQLGuardrailError
 from app.schemas import (
+    AIInsightRequest,
+    AIInsightResponse,
     ErrorResponse,
     ManifestResponse,
     ManifestUpdate,
@@ -21,6 +23,7 @@ from app.schemas import (
     QueryResponse,
     UploadResponse,
 )
+from app.services.ai_service import generate_insight
 from app.services.dataset_service import (
     get_manifest,
     profile_dataset,
@@ -148,3 +151,10 @@ async def api_download_csv(dataset_id: str, sql: str = Query(...)) -> StreamingR
             "Content-Disposition": f"attachment; filename={dataset_id}_result.csv"
         },
     )
+
+
+# ── POST /ai/insight ───────────────────────────────────
+@app.post("/ai/insight", response_model=AIInsightResponse)
+async def api_ai_insight(req: AIInsightRequest) -> AIInsightResponse:
+    """调用 LLM 生成数据洞察、建议和 A/B 测试方案。无 API Key 时返回 mock 洞察。"""
+    return generate_insight(req)
