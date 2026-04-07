@@ -292,19 +292,25 @@ Plans:
 
 ---
 
-### Phase 10: Copilot AI — DataContext + Copilot + DataHub + Claude API
-**目标：** 修复 DataContext 跨页面断层，接入 Claude API 实现自然语言转 SQL
+### Phase 10: Copilot 修复与 AI 接入
+**目标：** 修复 DataContext 跨页面断层、统一导航、接入真实 AI 分析
 
-**范围：**
-- DataContext 跨页面共享修复
-- 全局 Navigation（ClientLayout）
-- Copilot 页面 nav 清理
-- Claude API 集成
+**Plans:**
+- [x] 10-01-PLAN.md — DataContext 跨页面修复 + 全局 Navigation（ClientLayout）
+- [x] 10-02-PLAN.md — 后端 AI 洞察端点（POST /ai/insight，OpenAI-compatible，mock fallback）
+- [ ] 10-03-PLAN.md — 前端 Copilot AI 接入 + 死按钮修复
 
-**Plans:** 1/N plans executed
+---
+
+### Phase 10: Copilot 修复与 AI 接入
+**目标：** 修复 DataContext 跨页面断层，接入真实 AI 分析能力
+
+**Plans:** 3 plans
 
 Plans:
-- [x] 10-01-PLAN.md — DataContext 跨页面修复 + 全局 Navigation（ClientLayout）
+- [x] 10-01-PLAN.md — DataContext 跨页面修复 + 全局 Navigation
+- [x] 10-02-PLAN.md — 后端 AI 洞察端点（POST /ai/insight）
+- [ ] 10-03-PLAN.md — 前端 Copilot AI 接入 + 死按钮修复
 
 ---
 
@@ -359,16 +365,6 @@ Phase 7 (代码质量) ──> Phase 8 (测试覆盖) ──> Phase 9 (文档完
 ### 进度风险
 - **范围蔓延：** 严格按阶段执行，避免提前优化
 - **技术债务：** 优先 P0/P1 需求，P2/P3 可延后
-
-### Phase 10: Copilot 修复与 AI 接入 — 修复 DataContext 跨页面断层、统一 Copilot 导航结构与 DataHub 对齐、接入 Claude API 实现真实 AI 分析建议与 AB 测试方案生成、激活所有伪按钮功能
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 9
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd:plan-phase 10 to break down)
 
 ---
 
