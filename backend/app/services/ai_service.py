@@ -26,7 +26,7 @@ def _mock_insight(req: AIInsightRequest) -> AIInsightResponse:
     row_count = len(req.rows)
     col_count = len(req.rows[0]) if req.rows else 0
     return AIInsightResponse(
-        insight=f"数据集包含 {row_count} 行、{col_count} 列。问题："{req.question}"。请配置 LLM_API_KEY 以获取真实 AI 分析。",
+        insight=f"数据集包含 {row_count} 行、{col_count} 列。问题：\"{req.question}\"。请配置 LLM_API_KEY 以获取真实 AI 分析。",
         suggestions=[
             "检查数据完整性，确认关键字段无缺失值",
             "对数值列进行描述性统计分析（均值、中位数、标准差）",
