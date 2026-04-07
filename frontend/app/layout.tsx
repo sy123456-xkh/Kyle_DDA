@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import { ToastProvider } from "./components/Toast"
 import { DataProvider } from "./contexts/DataContext"
+import ClientLayout from "./components/ClientLayout"
 
 export const metadata: Metadata = {
   title: "Kyle Studios — 商业智能数据分析",
@@ -19,7 +20,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="antialiased">
         <DataProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <ClientLayout>{children}</ClientLayout>
+          </ToastProvider>
         </DataProvider>
       </body>
     </html>
