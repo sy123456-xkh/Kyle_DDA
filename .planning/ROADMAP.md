@@ -292,6 +292,28 @@ Plans:
 
 ---
 
+### Phase 10: Copilot 修复与 AI 接入
+**目标：** 修复 DataContext 跨页面断层、统一导航、接入真实 AI 分析
+
+**Plans:**
+- [x] 10-01-PLAN.md — DataContext 跨页面修复 + 全局 Navigation（ClientLayout）
+- [x] 10-02-PLAN.md — 后端 AI 洞察端点（POST /ai/insight，OpenAI-compatible，mock fallback）
+- [ ] 10-03-PLAN.md — 前端 Copilot AI 接入 + 死按钮修复
+
+---
+
+### Phase 10: Copilot 修复与 AI 接入
+**目标：** 修复 DataContext 跨页面断层，接入真实 AI 分析能力
+
+**Plans:** 3 plans
+
+Plans:
+- [x] 10-01-PLAN.md — DataContext 跨页面修复 + 全局 Navigation
+- [x] 10-02-PLAN.md — 后端 AI 洞察端点（POST /ai/insight）
+- [ ] 10-03-PLAN.md — 前端 Copilot AI 接入 + 死按钮修复
+
+---
+
 ## 阶段依赖关系
 
 ```
