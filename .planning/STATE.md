@@ -3,7 +3,7 @@ project: Chat-to-BI MVP 全面重构
 milestone: M1 - 重构与功能完善
 current_phase: 10
 status: active
-last_updated: 2026-04-07
+last_updated: 2026-04-08
 ---
 
 # 项目状态
@@ -74,11 +74,11 @@ last_updated: 2026-04-07
 
 ## 待完成阶段
 
-**Phase 10 进行中** — Plan 01 已完成，后续 Plan 待执行。
+**Phase 10 进行中** — Plan 01 已完成，Plan 02 (后端 AI 端点) 和 Plan 03 (前端 Copilot 重构) 待执行。
 
 ## 决策记录
 
-### 2026-04-07: Phase 10 Plan 01 — DataContext 跨页面修复
+### 2026-04-08: Phase 10 Plan 01 — DataContext 跨页面修复
 - **问题根因:** data-hub/page.tsx 有局部 DataProvider，与 layout.tsx 全局 DataProvider 是两个独立实例
 - **修复方案:** 删除局部 DataProvider，新建 ClientLayout.tsx 统一渲染 Navigation
 - **关键设计:** layout.tsx 保持 Server Component，ClientLayout 作为 Client Component 处理 usePathname/useData
@@ -107,10 +107,3 @@ last_updated: 2026-04-07
 - **状态管理：** React Context + useReducer
 - **图表库：** ECharts 5.6.0
 - **测试框架：** pytest + Vitest
-
-## 下一步
-
-**M1 里程碑已完成。** 可考虑：
-- 启动 M2：LLM 集成（Claude API → 自然语言转 SQL）
-- 准备面试演示材料
-- 部署到线上环境
