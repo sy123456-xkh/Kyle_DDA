@@ -6,7 +6,7 @@ import DataProfile from "../components/DataProfile"
 import ErrorBoundary from "../components/ErrorBoundary"
 import { SkeletonCard } from "../components/Skeleton"
 import { useToast } from "../components/Toast"
-import { DataProvider, useData } from "../contexts/DataContext"
+import { useData } from "../contexts/DataContext"
 import { api } from "@/lib/api"
 
 function DataHubContent() {
@@ -56,9 +56,5 @@ function DataHubContent() {
 }
 
 export default function DataHubPage() {
-  return (
-    <DataProvider>
-      <DataHubContent />
-    </DataProvider>
-  )
+  return <DataHubContent />
 }
