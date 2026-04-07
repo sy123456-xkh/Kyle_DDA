@@ -119,3 +119,31 @@ class ErrorResponse(BaseModel):
     """通用错误响应体。"""
 
     detail: str
+
+
+# ── AI Insight ──────────────────────────────────────────
+class AIInsightRequest(BaseModel):
+    """AI 洞察请求：数据集 ID、用户问题、可选图表 spec 和样本数据。"""
+
+    dataset_id: str
+    question: str
+    chart: Optional[ChartSpec] = None
+    rows: list[dict] = []
+    manifest: dict = {}
+
+
+class ABTestSpec(BaseModel):
+    """A/B 测试方案规格。"""
+
+    goal: str
+    metric: str
+    design: str
+    duration: str
+
+
+class AIInsightResponse(BaseModel):
+    """AI 洞察响应：核心结论、可执行建议和 A/B 测试方案。"""
+
+    insight: str
+    suggestions: list[str]
+    ab_test: Optional[ABTestSpec] = None
